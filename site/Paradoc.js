@@ -1,3 +1,4 @@
+// @ts-check
 /*!
  * Flatdoc - (c) 2013, 2014 Rico Sta. Cruz
  * http://ricostacruz.com/flatdoc
@@ -8,15 +9,26 @@
 var headerHeight = 52;
 
 /**
- * Pass the window.location.href
+ * @param {string} s - Pass the window.local.href here
+ * @return {string} URL basename
  */
 var urlBasename = function (s) {
   return s.split("/").pop().split("#")[0].split("?")[0];
 };
+
+/**
+ * @param {string} s - url path
+ * @return undefined
+ */
 var urlDir = function (s) {
   var lst =  s.split("/");
   var withoutLast = lst.pop();
 };
+
+/**
+ * @param {string} path - url path
+ * @return {string}
+ */
 var indexify = function(path) {
   var splits = path.split('/');
   if(splits.length > 0) {
@@ -30,6 +42,27 @@ var indexify = function(path) {
 };
 
 
+/**
+ * @param {string} path - url path
+ * @return {string}
+ */
+var indexify = function(path) {
+  var splits = path.split('/');
+  if(splits.length > 0) {
+    var last = splits[splits.length - 1];
+    if (path.lastIndexOf(".js") !== path.length - 3) {
+      return path + '/index.js';
+    } else {
+      return path;
+    }
+  }
+};
+
+/**
+ * Transform kebab-case to Kebab Case 
+ * @param {string} path - url path
+ * @return {string}
+ */
 var kebabToWords = function(s) {
   var ss = s.replace(
     /-./g,
@@ -43,6 +76,9 @@ var kebabToWords = function(s) {
 /**
  * Must supply href as written in dom node, not a.href which is fully resolved.
  * TODOSecurityAudit:
+ * @param {undefined} relativeToPageUrl - unused
+ * @param {string} href - Pass href in DOM node here
+ * @ignore
  */
 var isHrefAttributeLocal = function (relativeToPageUrl, href) {
   return href.indexOf('file://') !== 0 &&
@@ -61,67 +97,68 @@ var removeSiblingsBefore = function(n, node) {
   }
 };
 
-var urlForPageKey = function (s) {
-  return s + ".html";
-};
+// var urlForPageKey = function (s) {
+//   return s + ".html";
+// };
 
-var slugPrefix = function (hash) {
-  if (hash === "" || hash[0] !== "#") {
-    return "";
-  } else {
-    hash = hash.substr(1);
-    return (hash.split("-").length ? hash.split("-")[0] : "").toLowerCase();
-  }
-};
+// var slugPrefix = function (hash) {
+//   if (hash === "" || hash[0] !== "#") {
+//     return "";
+//   } else {
+//     hash = hash.substr(1);
+//     return (hash.split("-").length ? hash.split("-")[0] : "").toLowerCase();
+//   }
+// };
 
-function dictToSearchParams(dict) {
-  var segs = [];
-  for (var p in dict) {
-    segs.push(encodeURIComponent(p) + "=" + encodeURIComponent(dict[p]));
-  }
-  return "?" + segs.join("&");
-}
+// function dictToSearchparams(dict) {
+//   var segs = [];
+//   for (var p in dict) {
+//     segs.push(encodeuricomponent(p) + "=" + encodeuricomponent(dict[p]));
+//   }
+//   return "?" + segs.join("&");
+// }
 
-var Bookmark = {};
-var mapKeys = function (dict, onPage) {
+var bookmark = {};
+var mapkeys = function (dict, onpage) {
   var result = {};
-  for (var pageKey in dict) {
-    result[pageKey] = onPage(dict[pageKey], pageKey);
+  for (var pagekey in dict) {
+    result[pagekey] = onpage(dict[pagekey], pagekey);
   }
   return result;
 };
-var forEachKey = function (dict, onPage) {
-  var _throwAway = mapKeys(dict, (pageData, pageKey) => (onPage(pageData, pageKey), pageData));
-};
+// var foreachkey = function (dict, onpage) {
+//   var _throwaway = mapkeys(dict, (pagedata, pagekey) => (onpage(pagedata, pagekey), pagedata));
+// };
+
 /**
  * n squared but so what.
  */
-var nextKeyWithNonEmptyArrayOrNullIfNone = function (curKey, resultsByPageKey) {
-  var nextPageKey = nextKeyOrNull(curKey, resultsByPageKey);
-  if (nextPageKey === null) {
+var nextkeywithnonemptyarrayornullifnone = function (curkey, resultsbypagekey) {
+  var nextpagekey = nextkeyornull(curkey, resultsbypagekey);
+  if (nextpagekey === null) {
     return null;
-  } else if (resultsByPageKey[nextPageKey].length === 0) {
-    return nextKeyWithNonEmptyArrayOrNullIfNone(nextPageKey, resultsByPageKey);
+  } else if (resultsbypagekey[nextpagekey].length === 0) {
+    return nextkeywithnonemptyarrayornullifnone(nextpagekey, resultsbypagekey);
   } else {
-    return nextPageKey;
+    return nextpagekey;
   }
 };
 
 /**
  * n squared but so what.
  */
-var prevKeyWithNonEmptyArrayOrNullIfNone = function (curKey) {
-  var prevPageKey = prevKeyOrNull(curKey, resultsByPageKey);
-  if (prevPageKey === null) {
+var prevkeywithnonemptyarrayornullifnone = function (curkey) {
+  var prevpagekey = prevkeyornull(curkey, resultsbypagekey);
+  if (prevpagekey === null) {
     return null;
-  } else if (resultsByPageKey[prevPageKey].length === 0) {
-    return prevKeyWithNonEmptyArrayOrNullIfNone(prevPageKey);
+  } else if (resultsbypagekey[prevpagekey].length === 0) {
+    return prevkeywithnonemptyarrayornullifnone(prevpagekey);
   } else {
-    return prevPageKey;
+    return prevpagekey;
   }
 };
 
-var numKeysWhere = function (dict, f) {
+var numkeyswhere = function (dict, f) {
   var num = 0;
   for (var k in dict) {
     if (f(k, dict)) {
@@ -130,15 +167,15 @@ var numKeysWhere = function (dict, f) {
   }
   return num;
 };
-var numKeys = function (dict) {
-  return numKeysWhere(dict, function() {return true;});
+var numkeys = function (dict) {
+  return numkeyswhere(dict, function() {return true;});
 };
 /**
- * Returns nextKey or null if there is no next key after this one.  Returns
- * the first key if in the dictionary if `key` provided was null.  Undefined
+ * returns nextkey or null if there is no next key after this one.  returns
+ * the first key if in the dictionary if `key` provided was null.  undefined
  * behavior if the key was not null but not in the dict.
  */
-var nextKeyOrNull = function (key, dict) {
+var nextkeyornull = function (key, dict) {
   var seen = key === null;
   for (var k in dict) {
     if (seen) {
@@ -150,11 +187,11 @@ var nextKeyOrNull = function (key, dict) {
   return null;
 };
 /**
- * Returns previousKey or null if there is no previous key after this one.
- * Returns the last key if in the dictionary if `key` provided was null.
- * Undefined behavior if the key was not null but not in the dict.
+ * returns previouskey or null if there is no previous key after this one.
+ * returns the last key if in the dictionary if `key` provided was null.
+ * undefined behavior if the key was not null but not in the dict.
  */
-var prevKeyOrNull = function (key, dict) {
+var prevkeyornull = function (key, dict) {
   var prev = null;
   for (var k in dict) {
     if (k === key) {
@@ -165,7 +202,7 @@ var prevKeyOrNull = function (key, dict) {
   return prev;
 };
 
-var keyIndexOrNegativeOne = function (key, dict) {
+var keyindexornegativeone = function (key, dict) {
   var i = 0;
   for (var k in dict) {
     if (k === key) {
@@ -176,38 +213,38 @@ var keyIndexOrNegativeOne = function (key, dict) {
   return -1;
 };
 
-var keepOnlyKeys = function (dict, f) {
+var keeponlykeys = function (dict, f) {
   var result = {};
-  for (var pageKey in dict) {
-    if (f(dict[pageKey], pageKey)) {
-      result[pageKey] = dict[pageKey];
+  for (var pagekey in dict) {
+    if (f(dict[pagekey], pagekey)) {
+      result[pagekey] = dict[pagekey];
     }
   }
   return result;
 };
 
 /**
- * Inserts/moves a key/val after `afterKey`.
- * Errors if `afterKey` is not present.
- * Does nothing if `beforeKey` is the first key and `afterKey` is the last.
+ * inserts/moves a key/val after `afterkey`.
+ * errors if `afterkey` is not present.
+ * does nothing if `beforekey` is the first key and `afterkey` is the last.
  *
- * The "currently viewed" page is the first in the list regardless of if it is
- * supplied to initial page config items.  Then explicitly specified pages
+ * the "currently viewed" page is the first in the list regardless of if it is
+ * supplied to initial page config items.  then explicitly specified pages
  * passed to initial config options tend to be the next in the key order.
- * Then later discovered pages (via `nextPage` are added to the end of the
+ * then later discovered pages (via `nextpage` are added to the end of the
  * dictionary).
- * We will try to build off of the "first" key assuming that's the most
- * important one to have first. So we pin the first key in place and try to
+ * we will try to build off of the "first" key assuming that's the most
+ * important one to have first. so we pin the first key in place and try to
  * build off of that if possible (in a circular manner if necessary).
  */
-var ensureKeyValOrderCircular = function (dict, preKey, postKey) {
-  if(!(postKey in dict) || !(preKey in dict)) {
-    throw new Error(
-      'Key ' +
-      postKey +
+var ensurekeyvalordercircular = function (dict, prekey, postkey) {
+  if(!(postkey in dict) || !(prekey in dict)) {
+    throw new error(
+      'key ' +
+      postkey +
       ' and ' +
-      preKey +
-      ' are not both in pages. This is a problem with Bookmark implementation.'
+      prekey +
+      ' are not both in pages. this is a problem with bookmark implementation.'
     );
   }
   var result = {};
@@ -220,17 +257,17 @@ var ensureKeyValOrderCircular = function (dict, preKey, postKey) {
       last = k;
     }
   }
-  if(first === postKey && last === preKey) {
+  if(first === postkey && last === prekey) {
     return dict;
   }
   var inserted = false;
   for (var k in dict) {
-    if(k === postKey && postKey !== first) {
-      result[preKey] = dict[preKey];
-      result[postKey] = dict[postKey];
-    } else if(k === preKey) {
+    if(k === postkey && postkey !== first) {
+      result[prekey] = dict[prekey];
+      result[postkey] = dict[postkey];
+    } else if(k === prekey) {
       result[k] = dict[k];
-      result[postKey] = dict[postKey];
+      result[postkey] = dict[postkey];
     } else {
       result[k] = dict[k];
     }
@@ -239,7 +276,7 @@ var ensureKeyValOrderCircular = function (dict, preKey, postKey) {
 };
 
 
-var moveKeyToFront = function(dict, key) {
+var movekeytofront = function(dict, key) {
   var result = {};
   if(key in dict) {
     result[key] = dict[key];
@@ -250,7 +287,7 @@ var moveKeyToFront = function(dict, key) {
   return result;
 };
 
-var indexOfKey = function(dict, key) {
+var indexofkey = function(dict, key) {
   var i = -1;
   for(var k in dict) {
     i++;
@@ -261,29 +298,29 @@ var indexOfKey = function(dict, key) {
   return -1;
 };
 
-var resultsByPageKeyLen = function (resultsByPageKey) {
-  var totalLen = 0;
-  for (var pageKey in resultsByPageKey) {
-    totalLen += resultsByPageKey[pageKey].length;
+var resultsbypagekeylen = function (resultsbypagekey) {
+  var totallen = 0;
+  for (var pagekey in resultsbypagekey) {
+    totallen += resultsbypagekey[pagekey].length;
   }
-  return totalLen;
+  return totallen;
 };
 
 /**
- * Extracts the ? query param string from a url. It will always be after the
+ * extracts the ? query param string from a url. it will always be after the
  * hash tag.
  */
-var splitHrefHashAndQueryString = function(s) {
-  var querySearchLoc = href.indexOf("?");
-  var queryParamString = null;
-  if (querySearchLoc !== -1) {
-    queryParamString = s.substr(querySearchLoc + 1);
-    s = s.substr(0, querySearchLoc);
+var splithrefhashandquerystring = function(s) {
+  var querysearchloc = href.indexof("?");
+  var queryparamstring = null;
+  if (querysearchloc !== -1) {
+    queryparamstring = s.substr(querysearchloc + 1);
+    s = s.substr(0, querysearchloc);
   }
-  var hashSearchLoc = href.indexOf("#");
+  var hashsearchloc = href.indexof("#");
 }
 
-var areEqualPathArrs = function(a1, a2) {
+var areequalpatharrs = function(a1, a2) {
   if(a1.length !== a2.length) {
     return false;
   }
@@ -298,380 +335,380 @@ var areEqualPathArrs = function(a1, a2) {
 
 /**
  * 
- * Urls like blah.html#foo/bar#another-hash
- * Are interpreted as being another way to reference the page
- * foo/bar.html#another-hash (Currently everything relative from the
- * timeTemplate). This function analyzes any link that is not yet in the
- * standard form `siblingPage.html#hash?queryParams` and returns the abstract
+ * urls like blah.html#foo/bar#another-hash
+ * are interpreted as being another way to reference the page
+ * foo/bar.html#another-hash (currently everything relative from the
+ * timetemplate). this function analyzes any link that is not yet in the
+ * standard form `siblingpage.html#hash?queryparams` and returns the abstract
  * data about that link (which sibling page it refers to, which hash/query
  * params etc) so that the abstract link information can be reasoned about
  * and/or transformed into a "single page bundle" form
- * rootPage.html#sibingPage#hash?queryParams if necessary.
+ * rootpage.html#sibingpage#hash?queryparams if necessary.
  *
- * It also normalizes links that might not have been converted properly when
+ * it also normalizes links that might not have been converted properly when
  * ported to `.html` files (from `.md` files).
- * You may have forgotten to change a link from `siblingDoc.md` to
- * `siblingDoc.html`. This function also fixes that.
+ * you may have forgotten to change a link from `siblingdoc.md` to
+ * `siblingdoc.html`. this function also fixes that.
  *
- * - relativeToPageUrl: Some hrefs will be totally expanded and in terms of the
+ * - relativetopageurl: some hrefs will be totally expanded and in terms of the
  *   page that was *originally* rendered at the time the markup was generated
- *   (this is the Save As case in Chrome).  This function will make sure to
+ *   (this is the save as case in chrome).  this function will make sure to
  *   normalize hrefs if they are in terms of the originally expanded href the
- *   page was rendered at when saved. Docs must all reside in the same
+ *   page was rendered at when saved. docs must all reside in the same
  *   directory, and only docs (and docs assets) may reside in the same
  *   directory.
  *
- * Returns one of two types of links:
+ * returns one of two types of links:
  * 
- * External: A link to an external page (not within the documentation).
+ * external: a link to an external page (not within the documentation).
  *
  *     {
  *       type: 'external',
  *       href: full href
  *     }
  *
- * Internal: A link to a page within the documentation.
+ * internal: a link to a page within the documentation.
  *
  *     {
  *       type: 'internal',
- *       asAnEmbeddedSubpageOfEntrypointPageKey: urlBasenameRootLowerCase,
- *       pageKey: urlBasenameRootLowerCase,
- *       pageExtension: hrefExtension,
- *       hashContents: hash.substr(1),
- *       queryParams: queryParams,
+ *       asanembeddedsubpageofentrypointpagekey: urlbasenamerootlowercase,
+ *       pagekey: urlbasenamerootlowercase,
+ *       pageextension: hrefextension,
+ *       hashcontents: hash.substr(1),
+ *       queryparams: queryparams,
  *     }
  *
- * For local URLs, will expect hashes to appear *before* the query params
+ * for local urls, will expect hashes to appear *before* the query params
  * (which is not standard but looks better for this use case).
  * 
- * Normalizes links across the various doc workflows:
+ * normalizes links across the various doc workflows:
  *
- * - When using Chrome "Save As": Links to internal doc pages will become
+ * - when using chrome "save as": links to internal doc pages will become
  *   hardcoded to the absolute file path on disk, *including* links to hashes
  *   within *the same page*!
- *   - #foo becomes file://Path/To/yourPage.html#foo
- *   - ./siblingPage.html becomes file://Path/To/siblingPage.html
+ *   - #foo becomes file://path/to/yourpage.html#foo
+ *   - ./siblingpage.html becomes file://path/to/siblingpage.html
  *
- * These urls are expanded into the "written" attribute itself, not even after
+ * these urls are expanded into the "written" attribute itself, not even after
  * accessing the fully resolved href.
  *
- * When running in pre-rendered, and or compressed mode, *not* from "Save As",
- * you will still have an originallyRenderedAtUrl, but the hrefAsWritten will
+ * when running in pre-rendered, and or compressed mode, *not* from "save as",
+ * you will still have an originallyrenderedaturl, but the hrefaswritten will
  * not be expanded out to it.
  *
- * If there is an `originallyRenderedAtUrl` and we see a url that has the same
- * dir as the `originallyRenderedAtUrl` then it's a Chrome "Save As" link local
+ * if there is an `originallyrenderedaturl` and we see a url that has the same
+ * dir as the `originallyrenderedaturl` then it's a chrome "save as" link local
  * to the docs.
- * If there is an `originallyRenderedAtUrl` and we see a url that does *not*
- * have the same dir as `originallyRenderedAtUrl`, but has the same dir as
- * `currentPageUrl`, it's a link local to the docs (but not Chrome Save As).
+ * if there is an `originallyrenderedaturl` and we see a url that does *not*
+ * have the same dir as `originallyrenderedaturl`, but has the same dir as
+ * `currentpageurl`, it's a link local to the docs (but not chrome save as).
  * 
  */
-var getLink = function (originallyRenderedPageKey, originallyRenderedAtUrl, currentPageUrl, fullyResolvedLinkHref) {
+var getlink = function (originallyrenderedpagekey, originallyrenderedaturl, currentpageurl, fullyresolvedlinkhref) {
 
-  var currentPageOrigin = currentPageUrl.origin;
-  var currentPagePathArr = currentPageUrl.pathname.split('/');
-  var currentPageDirPathArr = currentPagePathArr.slice(0, currentPagePathArr.length - 1);
+  var currentpageorigin = currentpageurl.origin;
+  var currentpagepatharr = currentpageurl.pathname.split('/');
+  var currentpagedirpatharr = currentpagepatharr.slice(0, currentpagepatharr.length - 1);
 
-  var fullyResolvedLinkUrl = new URL(fullyResolvedLinkHref);
-  var fullyResolvedLinkOrigin = fullyResolvedLinkUrl.origin;
-  var fullyResolvedLinkPathArr = fullyResolvedLinkUrl.pathname.split('/');
-  var fullyResolvedLinkDirPathArr = fullyResolvedLinkPathArr.slice(0, fullyResolvedLinkPathArr.length - 1);
+  var fullyresolvedlinkurl = new url(fullyresolvedlinkhref);
+  var fullyresolvedlinkorigin = fullyresolvedlinkurl.origin;
+  var fullyresolvedlinkpatharr = fullyresolvedlinkurl.pathname.split('/');
+  var fullyresolvedlinkdirpatharr = fullyresolvedlinkpatharr.slice(0, fullyresolvedlinkpatharr.length - 1);
 
-  var currentPageHasSameOrigin = currentPageOrigin === fullyResolvedLinkOrigin;
-  var currentPageHasSameDir = areEqualPathArrs(currentPageDirPathArr, fullyResolvedLinkDirPathArr);
-  var isLocalLink = false;
-  if(currentPageHasSameOrigin && currentPageHasSameDir) {
-    isLocalLink = true;
-  } else if(originallyRenderedAtUrl){
-    var originallyRenderedAtOrigin = originallyRenderedAtUrl.origin;
-    var originallyRenderedAtPathArr = originallyRenderedAtUrl.pathname.split('/');
-    var originallyRenderedAtDirPathArr = originallyRenderedAtPathArr.slice(0, originallyRenderedAtPathArr.length - 1);
+  var currentpagehassameorigin = currentpageorigin === fullyresolvedlinkorigin;
+  var currentpagehassamedir = areequalpatharrs(currentpagedirpatharr, fullyresolvedlinkdirpatharr);
+  var islocallink = false;
+  if(currentpagehassameorigin && currentpagehassamedir) {
+    islocallink = true;
+  } else if(originallyrenderedaturl){
+    var originallyrenderedatorigin = originallyrenderedaturl.origin;
+    var originallyrenderedatpatharr = originallyrenderedaturl.pathname.split('/');
+    var originallyrenderedatdirpatharr = originallyrenderedatpatharr.slice(0, originallyrenderedatpatharr.length - 1);
     
-    var originallyRenderedAtHasSameOrigin = originallyRenderedAtOrigin === fullyResolvedLinkOrigin;
-    var originallyRenderedAtHasSameDir = areEqualPathArrs(originallyRenderedAtDirPathArr, fullyResolvedLinkDirPathArr);
-    if(originallyRenderedAtHasSameOrigin && originallyRenderedAtHasSameDir) {
-      isLocalLink = true;
+    var originallyrenderedathassameorigin = originallyrenderedatorigin === fullyresolvedlinkorigin;
+    var originallyrenderedathassamedir = areequalpatharrs(originallyrenderedatdirpatharr, fullyresolvedlinkdirpatharr);
+    if(originallyrenderedathassameorigin && originallyrenderedathassamedir) {
+      islocallink = true;
     }
   }
-  if(!isLocalLink) {
+  if(!islocallink) {
     return {
       type: 'external',
-      href: fullyResolvedLinkHref
+      href: fullyresolvedlinkhref
     };
   }
-  var hashAndQueryString = fullyResolvedLinkUrl.hash;  // Includes hash sign
-  var hashStr =
-    hashAndQueryString === '' || hashAndQueryString[0] !== '#' ? '' :
-    hashAndQueryString.indexOf("?") !== -1 ? hashAndQueryString.substr(1, hashAndQueryString.indexOf("?") - 1) :
-    hashAndQueryString.substr(1);
-  var queryStr =
-    hashAndQueryString.indexOf("?") == -1 ? '' :
-    hashAndQueryString.substr(hashAndQueryString.indexOf("?") + 1);
-  var queryParams = null;
-  if (queryStr !== '') {
-    var queryParams = {};
-    var params = queryStr.split("&");
+  var hashandquerystring = fullyresolvedlinkurl.hash;  // includes hash sign
+  var hashstr =
+    hashandquerystring === '' || hashandquerystring[0] !== '#' ? '' :
+    hashandquerystring.indexof("?") !== -1 ? hashandquerystring.substr(1, hashandquerystring.indexof("?") - 1) :
+    hashandquerystring.substr(1);
+  var querystr =
+    hashandquerystring.indexof("?") == -1 ? '' :
+    hashandquerystring.substr(hashandquerystring.indexof("?") + 1);
+  var queryparams = null;
+  if (querystr !== '') {
+    var queryparams = {};
+    var params = querystr.split("&");
     for (var i = 0; i < params.length; i++) {
       var param = params[i].split("=");
-      queryParams[decodeURIComponent(param[0])] = decodeURIComponent(param[1] || "");
+      queryparams[decodeuricomponent(param[0])] = decodeuricomponent(param[1] || "");
     }
   }
 
-  var asEmbeddedSubpageOf;
-  if (!!originallyRenderedPageKey) {
-    asEmbeddedSubpageOf = originallyRenderedPageKey;
+  var asembeddedsubpageof;
+  if (!!originallyrenderedpagekey) {
+    asembeddedsubpageof = originallyrenderedpagekey;
   } else {
-    var hrefBasename = urlBasename(fullyResolvedLinkHref);
-    var hrefBasenameExtensionIndex = hrefBasename.lastIndexOf('.');
-    var hrefExtension = hrefBasenameExtensionIndex !== -1 ? 
-      hrefBasename.substr(hrefBasenameExtensionIndex + 1) :
+    var hrefbasename = urlbasename(fullyresolvedlinkhref);
+    var hrefbasenameextensionindex = hrefbasename.lastindexof('.');
+    var hrefextension = hrefbasenameextensionindex !== -1 ? 
+      hrefbasename.substr(hrefbasenameextensionindex + 1) :
       null;
-    var hrefExtensionlessBasename = hrefBasenameExtensionIndex !== -1 ? 
-      hrefBasename.substr(0, hrefBasenameExtensionIndex) :
-      hrefBasename;
-    // This is just the file portion.
-    var urlBasenameRootLowerCase = hrefExtensionlessBasename.toLowerCase();
-    urlBasenameRootLowerCase = urlBasenameRootLowerCase.replace(".paradoc-rendered", "");
-    urlBasenameRootLowerCase = urlBasenameRootLowerCase.replace(".paradoc-inlined", "");
-    asEmbeddedSubpageOf = urlBasenameRootLowerCase;
+    var hrefextensionlessbasename = hrefbasenameextensionindex !== -1 ? 
+      hrefbasename.substr(0, hrefbasenameextensionindex) :
+      hrefbasename;
+    // this is just the file portion.
+    var urlbasenamerootlowercase = hrefextensionlessbasename.tolowercase();
+    urlbasenamerootlowercase = urlbasenamerootlowercase.replace(".paradoc-rendered", "");
+    urlbasenamerootlowercase = urlbasenamerootlowercase.replace(".paradoc-inlined", "");
+    asembeddedsubpageof = urlbasenamerootlowercase;
   }
 
-  // If there's no hash string or there is a hash string but it doesn't have
+  // if there's no hash string or there is a hash string but it doesn't have
   // another hash inside of it (then it's not an embedded single doc page
-  // link). It's either a link inside the current page (regular hash), or not
+  // link). it's either a link inside the current page (regular hash), or not
   // even a hash link at all.
-  if (hashStr === '' || hashStr.indexOf("#") === -1) {
+  if (hashstr === '' || hashstr.indexof("#") === -1) {
     return {
       type: 'internal',
-      // TODO: This should be null in this case.
-      asAnEmbeddedSubpageOfEntrypointPageKey: asEmbeddedSubpageOf,
-      pageKey: asEmbeddedSubpageOf,
-      pageExtension: hrefExtension,
-      hashContents: hashStr,
-      queryParams: queryParams,
+      // todo: this should be null in this case.
+      asanembeddedsubpageofentrypointpagekey: asembeddedsubpageof,
+      pagekey: asembeddedsubpageof,
+      pageextension: hrefextension,
+      hashcontents: hashstr,
+      queryparams: queryparams,
     };
   } else {
-    // It's an embedded hash link for single doc mode.
-    var effectivePageKey =
-      (hashStr.indexOf("#") === -1 ? hashStr : hashStr.substr(0, hashStr.indexOf("#")))
+    // it's an embedded hash link for single doc mode.
+    var effectivepagekey =
+      (hashstr.indexof("#") === -1 ? hashstr : hashstr.substr(0, hashstr.indexof("#")))
       .replace(".html", "")
       .replace(".htm", "")
-      .toLowerCase();
+      .tolowercase();
     return {
       type: 'internal',
-      asAnEmbeddedSubpageOfEntrypointPageKey: asEmbeddedSubpageOf,
-      pageKey: effectivePageKey,
-      pageExtension: hrefExtension,
-      hashContents: hashStr.substr(hashStr.lastIndexOf("#") + 1),
-      queryParams: queryParams,
+      asanembeddedsubpageofentrypointpagekey: asembeddedsubpageof,
+      pagekey: effectivepagekey,
+      pageextension: hrefextension,
+      hashcontents: hashstr.substr(hashstr.lastindexof("#") + 1),
+      queryparams: queryparams,
     };
   }
 };
 
 
-var isNodeSearchHit = function (node) {
+var isnodesearchhit = function (node) {
   return (
-    node.tagName === "TR" ||
-    node.tagName === "tr" ||
-    node.tagName === "H0" ||
-    node.tagName === "h0" ||
-    node.tagName === "H1" ||
-    node.tagName === "h1" ||
-    node.tagName === "H2" ||
-    node.tagName === "h2" ||
-    node.tagName === "H3" ||
-    node.tagName === "h3" ||
-    node.tagName === "H4" ||
-    node.tagName === "h4" ||
-    node.tagName === "H5" ||
-    node.tagName === "h5" ||
-    node.tagName === "H6" ||
-    node.tagName === "h6" ||
-    node.tagName === "codetabbutton" ||
-    node.tagName === "CODETABBUTTON" ||
-    node.tagName === "P" ||
-    node.tagName === "p" ||
-    node.tagName === "LI" ||
-    node.tagName === "li" ||
-    node.tagName === "UL" ||
-    node.tagName === "ul" ||
-    node.tagName === "CODE" ||
-    node.tagName === "code" ||
-    node.tagName === "PRE" ||
-    node.tagName === "pre" ||
-    node.nodeType === Node.TEXT_NODE
+    node.tagname === "tr" ||
+    node.tagname === "tr" ||
+    node.tagname === "h0" ||
+    node.tagname === "h0" ||
+    node.tagname === "h1" ||
+    node.tagname === "h1" ||
+    node.tagname === "h2" ||
+    node.tagname === "h2" ||
+    node.tagname === "h3" ||
+    node.tagname === "h3" ||
+    node.tagname === "h4" ||
+    node.tagname === "h4" ||
+    node.tagname === "h5" ||
+    node.tagname === "h5" ||
+    node.tagname === "h6" ||
+    node.tagname === "h6" ||
+    node.tagname === "codetabbutton" ||
+    node.tagname === "codetabbutton" ||
+    node.tagname === "p" ||
+    node.tagname === "p" ||
+    node.tagname === "li" ||
+    node.tagname === "li" ||
+    node.tagname === "ul" ||
+    node.tagname === "ul" ||
+    node.tagname === "code" ||
+    node.tagname === "code" ||
+    node.tagname === "pre" ||
+    node.tagname === "pre" ||
+    node.nodetype === node.text_node
   );
 };
 
-var SUPPORTS_SEARCH_TABBING = false;
-// Number of headers in search results per page.
-var NUM_HEADERS = 1;
+var supports_search_tabbing = false;
+// number of headers in search results per page.
+var num_headers = 1;
 
 /**
- * We can't have the ids of elements be the exact same as the hashes in the URL
- * because that will cause the browser to scroll. But we want to have full
+ * we can't have the ids of elements be the exact same as the hashes in the url
+ * because that will cause the browser to scroll. but we want to have full
  * control over scroll for things like better back button support and deep
  * linking / custom animation.
- * So the element to scroll to would have id="--bookmark-linkified--foo", but
+ * so the element to scroll to would have id="--bookmark-linkified--foo", but
  * the anchor links that jump to it would have href="#foo".
  *
- * This allows deep linking to page#section-header?text=this%20text Which will
+ * this allows deep linking to page#section-header?text=this%20text which will
  * animate a scroll to a specific text portion of that section with an
- * animation.  If we don't have full control over the animation, then our own
+ * animation.  if we don't have full control over the animation, then our own
  * animation might fight the browser's.
  */
-var BOOKMARK_LINK_ID_PREFIX = "--bookmark-linkified--";
+var bookmark_link_id_prefix = "--bookmark-linkified--";
 
 /**
- * Prepends the linkified prefix.
+ * prepends the linkified prefix.
  */
 
-function pageifiedIdForHash(slug, pageKey) {
-  return pageKey + "#" + slug;
+function pageifiedidforhash(slug, pagekey) {
+  return pagekey + "#" + slug;
 }
 
-function fullyQualifiedHeaderId(slug, pageKey) {
-  return BOOKMARK_LINK_ID_PREFIX + pageifiedIdForHash(slug, pageKey);
+function fullyqualifiedheaderid(slug, pagekey) {
+  return bookmark_link_id_prefix + pageifiedidforhash(slug, pagekey);
 }
 
 /**
- * Strips the linkified prefix and page prefix.
+ * strips the linkified prefix and page prefix.
  */
-function hashForFullFullyQualifiedHeaderId(s) {
-  var withoutLinkifiedPrefix =
-    s.indexOf(BOOKMARK_LINK_ID_PREFIX) === 0 ? s.substring(BOOKMARK_LINK_ID_PREFIX.length) : s;
-  var splitOnHash = withoutLinkifiedPrefix.split("#");
-  if (splitOnHash.length > 1) {
-    return splitOnHash[splitOnHash.length - 1];
+function hashforfullfullyqualifiedheaderid(s) {
+  var withoutlinkifiedprefix =
+    s.indexof(bookmark_link_id_prefix) === 0 ? s.substring(bookmark_link_id_prefix.length) : s;
+  var splitonhash = withoutlinkifiedprefix.split("#");
+  if (splitonhash.length > 1) {
+    return splitonhash[splitonhash.length - 1];
   } else {
-    return withoutLinkifiedPrefix;
+    return withoutlinkifiedprefix;
   }
 }
 
-var queryContentsViaIframe = function (url, onDoneCell, onFailCell) {
-  var timeout = window.setTimeout(function () {
-    onFailCell.contents &&
-      onFailCell.contents(
-        "Timed out loading " +
+var querycontentsviaiframe = function (url, ondonecell, onfailcell) {
+  var timeout = window.settimeout(function () {
+    onfailcell.contents &&
+      onfailcell.contents(
+        "timed out loading " +
           url +
-          ". Maybe it doesn't exist? Alternatively, perhaps you were paused " +
+          ". maybe it doesn't exist? alternatively, perhaps you were paused " +
           "in the debugger so it timed out?"
       );
   }, 900);
-  var listenerID = window.addEventListener("message", function (e) {
-    if (e.data.messageType === "docPageContent" && e.data.iframeName === url) {
-      window.removeEventListener("message", listenerID);
-      if (onDoneCell.contents) {
-        window.clearTimeout(timeout);
-        var start = Date.now();
-        onDoneCell.contents(e.data.content);
-        var end = Date.now();
+  var listenerid = window.addeventlistener("message", function (e) {
+    if (e.data.messagetype === "docpagecontent" && e.data.iframename === url) {
+      window.removeeventlistener("message", listenerid);
+      if (ondonecell.contents) {
+        window.cleartimeout(timeout);
+        var start = date.now();
+        ondonecell.contents(e.data.content);
+        var end = date.now();
         // console.log(end-start,'spent loading ' + url);
       }
     }
   });
-  var iframe = document.createElement("iframe");
+  var iframe = document.createelement("iframe");
   iframe.name = url;
-  // Themes may opt to handle offline/pre rendering, and this is convenient
+  // themes may opt to handle offline/pre rendering, and this is convenient
   // to mark these iframes as not-essential once rendered so they may be
-  // removed from the DOM after rendering, and won't take up space in the
+  // removed from the dom after rendering, and won't take up space in the
   // bundle.
-  // TODO: Consider this for merging many html pages into one book https://github.com/fidian/metalsmith-bookify-html
-  iframe.className = "removeFromRenderedPage";
-  iframe.src = url + "?bookmarkContentQuery=true";
+  // todo: consider this for merging many html pages into one book https://github.com/fidian/metalsmith-bookify-html
+  iframe.classname = "removefromrenderedpage";
+  iframe.src = url + "?bookmarkcontentquery=true";
   iframe.style = "display:none !important";
   iframe.type = "text/plain";
   iframe.onerror = function (e) {
-    if (onFailCell.contents) {
-      onFailCell.contents(e);
+    if (onfailcell.contents) {
+      onfailcell.contents(e);
     }
   };
   // iframe.onload = function(e) {
   // };
-  document.body.appendChild(iframe);
+  document.body.appendchild(iframe);
 };
 
-function scrollIntoViewAndHighlightNode(node) {
-  var highlightNode = function (node) {
+function scrollintoviewandhighlightnode(node) {
+  var highlightnode = function (node) {
     $(".bookmark-in-doc-highlight").each(function () {
       var $el = $(this);
-      $el.removeClass("bookmark-in-doc-highlight");
+      $el.removeclass("bookmark-in-doc-highlight");
     });
-    $(node).addClass("bookmark-in-doc-highlight");
+    $(node).addclass("bookmark-in-doc-highlight");
   };
   if (!node) {
     return;
   }
-  customScrollIntoView({
+  customscrollintoview({
     smooth: true,
     container: "page",
     element: node,
     mode: "top",
-    topMargin: headerHeight,
-    bottomMargin: 0,
+    topmargin: headerheight,
+    bottommargin: 0,
   });
-  highlightNode(node);
+  highlightnode(node);
 }
 
-function scrollIntoViewAndHighlightNodeById(id) {
+function scrollintoviewandhighlightnodebyid(id) {
   if (id != "") {
-    var header = document.getElementById(id);
-    scrollIntoViewAndHighlightNode(header);
+    var header = document.getelementbyid(id);
+    scrollintoviewandhighlightnode(header);
   }
 }
 
 // https://stackoverflow.com/a/8342709
-var customScrollIntoView = function (props) {
+var customscrollintoview = function (props) {
   var smooth = props.smooth || false;
   var container = props.container;
-  var containerElement = props.container === "page" ? document.documentElement : props.container;
-  var scrollerElement = props.container === "page" ? window : containerElement;
+  var containerelement = props.container === "page" ? document.documentelement : props.container;
+  var scrollerelement = props.container === "page" ? window : containerelement;
   var element = props.element;
   // closest-if-needed | top | bottom
   var mode = props.mode || "closest-if-needed";
-  var topMargin = props.topMargin || 0;
-  var bottomMargin = props.bottomMargin || 0;
-  var containerRect = containerElement.getBoundingClientRect();
-  var elementRect = element.getBoundingClientRect();
-  var containerOffset = $(containerElement).offset();
-  var elementOffset = $(element).offset();
-  // TODO: For "whole document" scrolling,
-  // use Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop)
-  // When loading the page from entrypoint mode, the document.documentElement scrollTop is zero!!
-  // But not when loading form an index.dev.html. Something about the way loading from entrypoint
+  var topmargin = props.topmargin || 0;
+  var bottommargin = props.bottommargin || 0;
+  var containerrect = containerelement.getboundingclientrect();
+  var elementrect = element.getboundingclientrect();
+  var containeroffset = $(containerelement).offset();
+  var elementoffset = $(element).offset();
+  // todo: for "whole document" scrolling,
+  // use math.max(window.pageyoffset, document.documentelement.scrolltop, document.body.scrolltop)
+  // when loading the page from entrypoint mode, the document.documentelement scrolltop is zero!!
+  // but not when loading form an index.dev.html. something about the way loading from entrypoint
   // rewrites the entire document with document.write screws up the scroll measurement.
   if (mode !== "top" && mode !== "closest-if-needed" && mode !== "bottom") {
-    console.error("Invalid mode to scrollIntoView", mode);
+    console.error("invalid mode to scrollintoview", mode);
   }
-  var containerScrollTop =
+  var containerscrolltop =
     container === "page"
-      ? Math.max(window.pageYOffset, document.documentElement.scrollTop, document.body.scrollTop)
-      : containerElement.scrollTop;
-  var elementOffsetInContainer =
-    elementOffset.top -
-    containerOffset.top +
-    // Relative to the document element does not need to account for document scrollTop
-    (container === "page" ? 0 : containerScrollTop);
+      ? math.max(window.pageyoffset, document.documentelement.scrolltop, document.body.scrolltop)
+      : containerelement.scrolltop;
+  var elementoffsetincontainer =
+    elementoffset.top -
+    containeroffset.top +
+    // relative to the document element does not need to account for document scrolltop
+    (container === "page" ? 0 : containerscrolltop);
   if (
     mode === "bottom" ||
     (mode === "closest-if-needed" &&
-      elementOffsetInContainer + elementRect.height >
-        containerScrollTop + containerRect.height - bottomMargin)
+      elementoffsetincontainer + elementrect.height >
+        containerscrolltop + containerrect.height - bottommargin)
   ) {
-    var newTop =
-      elementOffsetInContainer - containerRect.height + elementRect.height + bottomMargin;
-    scrollerElement.scrollTo({ left: 0, top: newTop, behavior: smooth ? "smooth" : "auto" });
+    var newtop =
+      elementoffsetincontainer - containerrect.height + elementrect.height + bottommargin;
+    scrollerelement.scrollto({ left: 0, top: newtop, behavior: smooth ? "smooth" : "auto" });
   } else if (
     mode === "top" ||
-    (mode === "closest-if-needed" && elementOffsetInContainer < containerScrollTop)
+    (mode === "closest-if-needed" && elementoffsetincontainer < containerscrolltop)
   ) {
-    var newTop = elementOffsetInContainer - topMargin;
-    scrollerElement.scrollTo({ left: 0, top: newTop, behavior: smooth ? "smooth" : "auto" });
+    var newtop = elementoffsetincontainer - topmargin;
+    scrollerelement.scrollto({ left: 0, top: newtop, behavior: smooth ? "smooth" : "auto" });
   }
 };
 
-var defaultSidenavifyConfig = {
+var defaultsidenavifyconfig = {
   h1: true,
   h2: true,
   h3: true,
@@ -680,7 +717,7 @@ var defaultSidenavifyConfig = {
   h6: false,
 };
 
-var defaultSlugContributions = {
+var defaultslugcontributions = {
   h1: true,
   h2: true,
   h3: true,
@@ -689,120 +726,120 @@ var defaultSlugContributions = {
   h6: true,
 };
 
-// Thank you David Walsh:
+// thank you david walsh:
 // https://davidwalsh.name/query-string-javascript
-function queryParam(name) {
-  var res = new RegExp(
+function queryparam(name) {
+  var res = new regexp(
     "[\\?&]" + name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]") + "=([^&#]*)"
   ).exec(location.search);
-  return res === null ? "" : decodeURIComponent(res[1].replace(/\+/g, " "));
+  return res === null ? "" : decodeuricomponent(res[1].replace(/\+/g, " "));
 }
 
-function parseYamlHeader(markdown, locationPathname) {
+function parseyamlheader(markdown, locationpathname) {
   markdown = markdown.trim();
-  var yamlBoundaries = allMatchingIndicesWillMutateYourRegex(/\-\-\-\n/g, markdown);
-  if (yamlBoundaries.length > 1 && yamlBoundaries[0].atIndex === 0) {
-    var firstBoundary = yamlBoundaries[0];
-    var secondBoundary = yamlBoundaries[1];
-    var yamlContent = markdown.substring(firstBoundary.atIndex + firstBoundary.matchingString.length, secondBoundary.atIndex - 1);
-    var lines = yamlContent.split("\n");
+  var yamlboundaries = allmatchingindiceswillmutateyourregex(/\-\-\-\n/g, markdown);
+  if (yamlboundaries.length > 1 && yamlboundaries[0].atindex === 0) {
+    var firstboundary = yamlboundaries[0];
+    var secondboundary = yamlboundaries[1];
+    var yamlcontent = markdown.substring(firstboundary.atindex + firstboundary.matchingstring.length, secondboundary.atindex - 1);
+    var lines = yamlcontent.split("\n");
     var props = {};
     for (var i = 0; i < lines.length; i++) {
       if(lines[i].trim() === '') {
         continue;
       }
-      var colonIndex = lines[i].indexOf(":");
-      if (colonIndex === -1) {
-        return { markdown: markdown, headerProps: {} };
+      var colonindex = lines[i].indexof(":");
+      if (colonindex === -1) {
+        return { markdown: markdown, headerprops: {} };
       } else {
-        var field = lines[i].substr(0, colonIndex);
-        // Todo: escape strings
-        var content = lines[i].substr(colonIndex + 1).trim();
+        var field = lines[i].substr(0, colonindex);
+        // todo: escape strings
+        var content = lines[i].substr(colonindex + 1).trim();
         if (content[0] === '"' && content[content.length - 1] === '"') {
-          var strContent = content.substr(1, content.length - 2);
-          content = content.replace(new RegExp('\\\\"', "g"), '"');
+          var strcontent = content.substr(1, content.length - 2);
+          content = content.replace(new regexp('\\\\"', "g"), '"');
         }
         props[field] = content;
       }
     }
     if (!props.id) {
-      var filename = locationPathname.substring(locationPathname.lastIndexOf("/") + 1);
+      var filename = locationpathname.substring(locationpathname.lastindexof("/") + 1);
       props.id =
-        filename.indexOf(".") !== -1
-          ? filename.substring(0, filename.lastIndexOf("."))
+        filename.indexof(".") !== -1
+          ? filename.substring(0, filename.lastindexof("."))
           : filename;
     }
     return {
-      markdown: markdown.substr(secondBoundary.atIndex + secondBoundary.matchingString.length),
-      headerProps: props
+      markdown: markdown.substr(secondboundary.atindex + secondboundary.matchingstring.length),
+      headerprops: props
     };
   } else {
-    return { markdown: markdown, headerProps: {} };
+    return { markdown: markdown, headerprops: {} };
   }
 }
 
 /**
- * Regexes are stateful in JS. Named appropriately.
+ * regexes are stateful in js. named appropriately.
  */
-function allMatchingIndicesWillMutateYourRegex(regex, haystack) {
+function allmatchingindiceswillmutateyourregex(regex, haystack) {
   var match;
   var matches = [];
   while (match = regex.exec(haystack)) {
-    matches.push({matchingString: match[0], atIndex: match.index});
+    matches.push({matchingstring: match[0], atindex: match.index});
   }
   return matches;
 };
 
 /**
- * Strips out a special case of markdown "comments" which is supported in all
- * markdown parsers, will not be rendered in Github previews, but can be used
+ * strips out a special case of markdown "comments" which is supported in all
+ * markdown parsers, will not be rendered in github previews, but can be used
  * to convey yaml header information.
  *
- * Include this in your doc to have Bookmark interpret the yaml headers without
- * it appearing in the Github preview. This allows using one source of truth
- * markdown file for Github READMEs as well as using to generate your site
- * (when you don't want metadata showing up in your Github previews).
+ * include this in your doc to have bookmark interpret the yaml headers without
+ * it appearing in the github preview. this allows using one source of truth
+ * markdown file for github readmes as well as using to generate your site
+ * (when you don't want metadata showing up in your github previews).
  *
  *     [//]: # (---)
  *     [//]: # (something: hey)
  *     [//]: # (title: me)
- *     [//]: # (description: "Hi there here is an escaped quote \" inside of quotes")
+ *     [//]: # (description: "hi there here is an escaped quote \" inside of quotes")
  *     [//]: # (---)
  */
-function normalizeYamlMarkdownComments(markdown) {
+function normalizeyamlmarkdowncomments(markdown) {
   markdown = markdown.trim();
-  var silentYamlBoundaries = allMatchingIndicesWillMutateYourRegex(
-    new RegExp(escapeRegExpSearchString("[//]: # (") + "---" + escapeRegExpSearchString(")\n"), "g"),
+  var silentyamlboundaries = allmatchingindiceswillmutateyourregex(
+    new regexp(escaperegexpsearchstring("[//]: # (") + "---" + escaperegexpsearchstring(")\n"), "g"),
     markdown
   );
-  // Since white space trimmed, should be at index zero if first thing after script include
-  if (silentYamlBoundaries.length > 1 && silentYamlBoundaries[0].atIndex === 0) {
-    var firstBoundary = silentYamlBoundaries[0];
-    var secondBoundary = silentYamlBoundaries[1];
-    var yamlContent = markdown.substring(firstBoundary.atIndex + firstBoundary.matchingString.length, secondBoundary.atIndex - 1);
-    var yamlContentWithoutComment =
-      yamlContent.replaceAll(
-        new RegExp(escapeRegExpSearchString("[//]: # (") + "(.*)" + escapeRegExpSearchString(")"), "g"),
+  // since white space trimmed, should be at index zero if first thing after script include
+  if (silentyamlboundaries.length > 1 && silentyamlboundaries[0].atindex === 0) {
+    var firstboundary = silentyamlboundaries[0];
+    var secondboundary = silentyamlboundaries[1];
+    var yamlcontent = markdown.substring(firstboundary.atindex + firstboundary.matchingstring.length, secondboundary.atindex - 1);
+    var yamlcontentwithoutcomment =
+      yamlcontent.replaceall(
+        new regexp(escaperegexpsearchstring("[//]: # (") + "(.*)" + escaperegexpsearchstring(")"), "g"),
         function(_s, content) { return content }
       );
-    return "---\n" + yamlContentWithoutComment + "\n---\n" + markdown.substr(secondBoundary.atIndex + secondBoundary.matchingString.length);
+    return "---\n" + yamlcontentwithoutcomment + "\n---\n" + markdown.substr(secondboundary.atindex + secondboundary.matchingstring.length);
   } else {
     return markdown;
   }
 }
 
 /**
- * The user can put this in their html file to:
- * 1. Get vim syntax highlighting to work.
- * 2. Get github to treat their html/htm file as a markdown file for rendering.
- * 3. Load the script tag only when rendered with ReFresh.
+ * the user can put this in their html file to:
+ * 1. get vim syntax highlighting to work.
+ * 2. get github to treat their html/htm file as a markdown file for rendering.
+ * 3. load the script tag only when rendered with refresh.
  *
- * [ vim:syntax=Markdown ]: # (<script src="flatdoc.js"></script>)
+ * [ vim:syntax=markdown ]: # (<script src="flatdoc.js"></script>)
  *
- * Only downside is that it leaves a dangling ) in the text returned to
+ * only downside is that it leaves a dangling ) in the text returned to
  * us which we can easily normalize.
  */
-function normalizeMarkdownResponse(markdown) {
+function normalizemarkdownresponse(markdown) {
   if (markdown[0] === ")" && markdown[1] === "\n") {
     markdown = markdown.substring(2);
   }
@@ -811,71 +848,71 @@ function normalizeMarkdownResponse(markdown) {
 
 /**
  * [^] means don't match "no" characters - which is all characters including
- * newlines. The ? makes it not greddy.
+ * newlines. the ? makes it not greddy.
  */
-var docusaurusTabsRegionRegex = new RegExp(
+var docusaurustabsregionregex = new regexp(
   "^" +
-    escapeRegExpSearchString("<!--DOCUSAURUS_CODE_TABS-->") +
+    escaperegexpsearchstring("<!--docusaurus_code_tabs-->") +
     "$([^]*?)" +
-    escapeRegExpSearchString("<!--END_DOCUSAURUS_CODE_TABS-->"),
+    escaperegexpsearchstring("<!--end_docusaurus_code_tabs-->"),
   "gm"
 );
-var nonDocusaurusTabsRegionRegex = new RegExp(
+var nondocusaurustabsregionregex = new regexp(
   "^" +
-    escapeRegExpSearchString("<!--CODE_TABS-->") +
+    escaperegexpsearchstring("<!--code_tabs-->") +
     "$([^]*?)" +
-    escapeRegExpSearchString("<!--END_CODE_TABS-->"),
+    escaperegexpsearchstring("<!--end_code_tabs-->"),
   "gm"
 );
-var anyHtmlCommentRegex = new RegExp(
+var anyhtmlcommentregex = new regexp(
   "(^(" +
-    escapeRegExpSearchString("<!--") +
+    escaperegexpsearchstring("<!--") +
     "([^]*?)" +
-    escapeRegExpSearchString("-->") +
+    escaperegexpsearchstring("-->") +
     ")[\n\r])?^```(.+)[\n\r]([^]*?)[\n\r]```",
   "gm"
 );
-function normalizeDocusaurusCodeTabs(markdown) {
-  // Used to look it up later in the DOM and move things around to a more
+function normalizedocusauruscodetabs(markdown) {
+  // used to look it up later in the dom and move things around to a more
   // convenient structure targetable by css.
-  var onReplace = function (matchedStr, matchedCommentContents) {
+  var onreplace = function (matchedstr, matchedcommentcontents) {
     var tabs = [];
-    var maxLengthOfCode = 0;
-    var getMaxLengthOfCode = function (matchedStr, _, _, commentContent, syntax, codeContents) {
-      var split = codeContents.split("\n");
-      maxLengthOfCode =
-        codeContents && split.length > maxLengthOfCode ? split.length : maxLengthOfCode;
-      return matchedStr;
+    var maxlengthofcode = 0;
+    var getmaxlengthofcode = function (matchedstr, _, _, commentcontent, syntax, codecontents) {
+      var split = codecontents.split("\n");
+      maxlengthofcode =
+        codecontents && split.length > maxlengthofcode ? split.length : maxlengthofcode;
+      return matchedstr;
     };
-    var onIndividualReplace = function (_, _, _, commentContent, syntax, codeContents) {
-      var className = tabs.length === 0 ? "active" : "";
-      var split = codeContents.split("\n");
-      var splitLen = split.length;
-      // For some reason - 1 is needed when adding empty strings, instead of
+    var onindividualreplace = function (_, _, _, commentcontent, syntax, codecontents) {
+      var classname = tabs.length === 0 ? "active" : "";
+      var split = codecontents.split("\n");
+      var splitlen = split.length;
+      // for some reason - 1 is needed when adding empty strings, instead of
       // non-empty spacers.
-      while (splitLen - 1 < maxLengthOfCode) {
+      while (splitlen - 1 < maxlengthofcode) {
         split.push(" ");
-        splitLen++;
+        splitlen++;
       }
       tabs.push({
         syntax: syntax,
-        codeContents: split.join("\n"),
-        tabMarkup:
+        codecontents: split.join("\n"),
+        tabmarkup:
           "<codetabbutton class='" +
-          className +
+          classname +
           "'" +
           " data-index=" +
           (tabs.length + 1) +
           ">" +
-          escapeHtml(commentContent || syntax) +
+          escapehtml(commentcontent || syntax) +
           "</codetabbutton>",
       });
       return "\n```" + syntax + "\n" + split.join("\n") + "\n```";
     };
     tabs = [];
-    maxLengthOfCode = 0;
-    matchedCommentContents.replace(anyHtmlCommentRegex, getMaxLengthOfCode);
-    var ret = matchedCommentContents.replace(anyHtmlCommentRegex, onIndividualReplace);
+    maxlengthofcode = 0;
+    matchedcommentcontents.replace(anyhtmlcommentregex, getmaxlengthofcode);
+    var ret = matchedcommentcontents.replace(anyhtmlcommentregex, onindividualreplace);
     return (
       "<codetabscontainer data-num-codes=" +
       tabs.length +
@@ -884,61 +921,61 @@ function normalizeDocusaurusCodeTabs(markdown) {
       "'>" +
       tabs
         .map(function (t) {
-          return t.tabMarkup;
+          return t.tabmarkup;
         })
         .join("") +
       "</codetabscontainer>" +
       ret
     );
   };
-  return markdown.replace(docusaurusTabsRegionRegex, onReplace)
-        .replace(nonDocusaurusTabsRegionRegex, onReplace);
+  return markdown.replace(docusaurustabsregionregex, onreplace)
+        .replace(nondocusaurustabsregionregex, onreplace);
   return ret;
 }
 
-var emptyHTML = "";
+var emptyhtml = "";
 
 /**
- * Scrolling into view:
+ * scrolling into view:
  * https://www.bram.us/2020/03/01/prevent-content-from-being-hidden-underneath-a-fixed-header-by-using-scroll-margin-top/
  */
 
-function escapePlatformStringLoop(html, lastIndex, index, s, len) {
+function escapeplatformstringloop(html, lastindex, index, s, len) {
   var html__0 = html;
-  var lastIndex__0 = lastIndex;
+  var lastindex__0 = lastindex;
   var index__0 = index;
   for (;;) {
     if (index__0 === len) {
-      var match = 0 === lastIndex__0 ? 1 : 0;
+      var match = 0 === lastindex__0 ? 1 : 0;
       if (0 === match) {
-        var match__0 = lastIndex__0 !== index__0 ? 1 : 0;
-        return 0 === match__0 ? html__0 : html__0 + s.substring(lastIndex__0, len);
+        var match__0 = lastindex__0 !== index__0 ? 1 : 0;
+        return 0 === match__0 ? html__0 : html__0 + s.substring(lastindex__0, len);
       }
       return s;
     }
-    var code = s.charCodeAt(index__0);
+    var code = s.charcodeat(index__0);
     if (40 <= code) {
       var switcher = (code + -60) | 0;
       if (!(2 < switcher >>> 0)) {
         switch (switcher) {
           case 0:
-            var html__1 = html__0 + s.substring(lastIndex__0, index__0);
-            var lastIndex__1 = (index__0 + 1) | 0;
+            var html__1 = html__0 + s.substring(lastindex__0, index__0);
+            var lastindex__1 = (index__0 + 1) | 0;
             var html__2 = html__1 + "&lt;";
             var index__2 = (index__0 + 1) | 0;
             var html__0 = html__2;
-            var lastIndex__0 = lastIndex__1;
+            var lastindex__0 = lastindex__1;
             var index__0 = index__2;
             continue;
           case 1:
             break;
           default:
-            var html__3 = html__0 + s.substring(lastIndex__0, index__0);
-            var lastIndex__2 = (index__0 + 1) | 0;
+            var html__3 = html__0 + s.substring(lastindex__0, index__0);
+            var lastindex__2 = (index__0 + 1) | 0;
             var html__4 = html__3 + "&gt;";
             var index__3 = (index__0 + 1) | 0;
             var html__0 = html__4;
-            var lastIndex__0 = lastIndex__2;
+            var lastindex__0 = lastindex__2;
             var index__0 = index__3;
             continue;
         }
@@ -947,33 +984,33 @@ function escapePlatformStringLoop(html, lastIndex, index, s, len) {
       var switcher__0 = (code + -34) | 0;
       switch (switcher__0) {
         case 0:
-          var su = s.substring(lastIndex__0, index__0);
+          var su = s.substring(lastindex__0, index__0);
           var html__5 = html__0 + su;
-          var lastIndex__3 = (index__0 + 1) | 0;
+          var lastindex__3 = (index__0 + 1) | 0;
           var html__6 = html__5 + "&quot;";
           var index__4 = (index__0 + 1) | 0;
           var html__0 = html__6;
-          var lastIndex__0 = lastIndex__3;
+          var lastindex__0 = lastindex__3;
           var index__0 = index__4;
           continue;
         case 4:
-          var su__0 = s.substring(lastIndex__0, index__0);
+          var su__0 = s.substring(lastindex__0, index__0);
           var html__7 = html__0 + su__0;
-          var lastIndex__4 = (index__0 + 1) | 0;
+          var lastindex__4 = (index__0 + 1) | 0;
           var html__8 = html__7 + "&amp;";
           var index__5 = (index__0 + 1) | 0;
           var html__0 = html__8;
-          var lastIndex__0 = lastIndex__4;
+          var lastindex__0 = lastindex__4;
           var index__0 = index__5;
           continue;
         case 5:
-          var su__1 = s.substring(lastIndex__0, index__0);
+          var su__1 = s.substring(lastindex__0, index__0);
           var html__9 = html__0 + su__1;
-          var lastIndex__5 = (index__0 + 1) | 0;
+          var lastindex__5 = (index__0 + 1) | 0;
           var html__10 = html__9 + "&#x27;";
           var index__6 = (index__0 + 1) | 0;
           var html__0 = html__10;
-          var lastIndex__0 = lastIndex__5;
+          var lastindex__0 = lastindex__5;
           var index__0 = index__6;
           continue;
       }
@@ -984,231 +1021,231 @@ function escapePlatformStringLoop(html, lastIndex, index, s, len) {
   }
 }
 
-function escapeHtml(s) {
-  return escapePlatformStringLoop(emptyHTML, 0, 0, s, s.length);
+function escapehtml(s) {
+  return escapeplatformstringloop(emptyhtml, 0, 0, s, s.length);
 }
 
-var updateContextFromTreeNode = function (context, treeNode) {
-  if (treeNode.level === 0) {
-    return { ...context, h0: treeNode, h1: null, h2: null, h3: null, h4: null, h5: null, h6: null };
+var updatecontextfromtreenode = function (context, treenode) {
+  if (treenode.level === 0) {
+    return { ...context, h0: treenode, h1: null, h2: null, h3: null, h4: null, h5: null, h6: null };
   }
-  if (treeNode.level === 1) {
-    return { ...context, h1: treeNode, h2: null, h3: null, h4: null, h5: null, h6: null };
+  if (treenode.level === 1) {
+    return { ...context, h1: treenode, h2: null, h3: null, h4: null, h5: null, h6: null };
   }
-  if (treeNode.level === 2) {
-    return { ...context, h2: treeNode, h3: null, h4: null, h5: null, h6: null };
+  if (treenode.level === 2) {
+    return { ...context, h2: treenode, h3: null, h4: null, h5: null, h6: null };
   }
-  if (treeNode.level === 3) {
-    return { ...context, h3: treeNode, h4: null, h5: null, h6: null };
+  if (treenode.level === 3) {
+    return { ...context, h3: treenode, h4: null, h5: null, h6: null };
   }
-  if (treeNode.level === 4) {
-    return { ...context, h4: treeNode, h5: null, h6: null };
+  if (treenode.level === 4) {
+    return { ...context, h4: treenode, h5: null, h6: null };
   }
-  if (treeNode.level === 5) {
-    return { ...context, h5: treeNode, h6: null };
+  if (treenode.level === 5) {
+    return { ...context, h5: treenode, h6: null };
   }
-  if (treeNode.level === 6) {
-    return { ...context, h6: treeNode };
+  if (treenode.level === 6) {
+    return { ...context, h6: treenode };
   }
-  // LEAF_LEVEL
+  // leaf_level
   return context;
 };
 
 /**
- * Turn a search string into a regex portion.
+ * turn a search string into a regex portion.
  * https://stackoverflow.com/a/1144788
  */
-function escapeRegExpSearchString(string) {
+function escaperegexpsearchstring(string) {
   return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
 }
 
-function replaceAllStringsCaseInsensitive(str, find, replace) {
-  return str.replace(new RegExp(escapeRegExp(find), "gi"), replace);
+function replaceallstringscaseinsensitive(str, find, replace) {
+  return str.replace(new regexp(escaperegexp(find), "gi"), replace);
 }
 
-function escapeRegExpSplitString(string) {
+function escaperegexpsplitstring(string) {
   return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
 }
 
-function splitStringCaseInsensitiveImpl(regexes, str, find) {
-  return str.split(regexes.caseInsensitive.anywhere);
+function splitstringcaseinsensitiveimpl(regexes, str, find) {
+  return str.split(regexes.caseinsensitive.anywhere);
 }
-function splitStringCaseInsensitive(str, find) {
-  return str.split(new RegExp("(" + escapeRegExpSplitString(find) + ")", "gi"));
+function splitstringcaseinsensitive(str, find) {
+  return str.split(new regexp("(" + escaperegexpsplitstring(find) + ")", "gi"));
 }
 
 /**
- * Only trust for markdown that came from trusted source (your own page).
- * I do not know exactly what portions are unsafe - perhaps none.
+ * only trust for markdown that came from trusted source (your own page).
+ * i do not know exactly what portions are unsafe - perhaps none.
  */
-var trustedTraverseAndHighlightImpl = function traverseAndHighlightImpl(regex, text, node) {
-  var tagName = node.nodeType === Node.TEXT_NODE ? "p" : node.tagName.toLowerCase();
-  var className = node.nodeType === Node.TEXT_NODE ? "" : node.getAttributeNode("class");
-  var childNodes = node.nodeType === Node.TEXT_NODE ? [node] : node.childNodes;
-  var childNode = childNodes.length > 0 ? childNodes[0] : null;
+var trustedtraverseandhighlightimpl = function traverseandhighlightimpl(regex, text, node) {
+  var tagname = node.nodetype === node.text_node ? "p" : node.tagname.tolowercase();
+  var classname = node.nodetype === node.text_node ? "" : node.getattributenode("class");
+  var childnodes = node.nodetype === node.text_node ? [node] : node.childnodes;
+  var childnode = childnodes.length > 0 ? childnodes[0] : null;
   var i = 0;
-  var newInnerHtml = "";
-  while (childNode && i < 2000) {
-    if (childNode.nodeType === Node.TEXT_NODE) {
+  var newinnerhtml = "";
+  while (childnode && i < 2000) {
+    if (childnode.nodetype === node.text_node) {
       if (regex) {
-        var splitOnMatch = splitStringCaseInsensitiveImpl(regex, childNode.textContent, text);
-        splitOnMatch.forEach(function (seg) {
+        var splitonmatch = splitstringcaseinsensitiveimpl(regex, childnode.textcontent, text);
+        splitonmatch.foreach(function (seg) {
           if (seg !== "") {
-            if (seg.toLowerCase() === text.toLowerCase()) {
-              newInnerHtml += "<search-highlight>" + escapeHtml(seg) + "</search-highlight>";
+            if (seg.tolowercase() === text.tolowercase()) {
+              newinnerhtml += "<search-highlight>" + escapehtml(seg) + "</search-highlight>";
             } else {
-              newInnerHtml += escapeHtml(seg);
+              newinnerhtml += escapehtml(seg);
             }
           }
         });
       } else {
-        newInnerHtml += escapeHtml(childNode.textContent);
+        newinnerhtml += escapehtml(childnode.textcontent);
       }
     } else {
-      newInnerHtml += trustedTraverseAndHighlightImpl(regex, text, childNode);
+      newinnerhtml += trustedtraverseandhighlightimpl(regex, text, childnode);
     }
     i++;
-    childNode = childNodes[i];
+    childnode = childnodes[i];
   }
-  var openTag = "";
-  var closeTag = "";
-  classAttr = className
-    ? ' class="' + escapeHtml(className.value.replace("bookmark-in-doc-highlight", "")) + '"'
+  var opentag = "";
+  var closetag = "";
+  classattr = classname
+    ? ' class="' + escapehtml(classname.value.replace("bookmark-in-doc-highlight", "")) + '"'
     : "";
-  switch (tagName) {
+  switch (tagname) {
     case "a":
-      var href = node.getAttributeNode("href");
-      openTag = href ? '<a onclick="false" tabindex=-1 ' + classAttr + ">" : "<a>";
-      closeTag = "</a>";
+      var href = node.getattributenode("href");
+      opentag = href ? '<a onclick="false" tabindex=-1 ' + classattr + ">" : "<a>";
+      closetag = "</a>";
       break;
     case "code":
-      var className = node.getAttributeNode("class");
-      openTag = className
-        ? '<code class="' + escapeHtml(className.value) + '"' + classAttr + ">"
+      var classname = node.getattributenode("class");
+      opentag = classname
+        ? '<code class="' + escapehtml(classname.value) + '"' + classattr + ">"
         : "<code>";
-      closeTag = "</code>";
+      closetag = "</code>";
       break;
     default:
-      openTag = "<" + tagName + classAttr + ">";
-      closeTag = "</" + tagName + ">";
+      opentag = "<" + tagname + classattr + ">";
+      closetag = "</" + tagname + ">";
   }
-  return openTag + newInnerHtml + closeTag;
+  return opentag + newinnerhtml + closetag;
 };
 
-var trustedTraverseAndHighlight = function (searchRegex, text, node) {
-  return trustedTraverseAndHighlightImpl(searchRegex, text, node);
+var trustedtraverseandhighlight = function (searchregex, text, node) {
+  return trustedtraverseandhighlightimpl(searchregex, text, node);
 };
 
 /**
- * Leaf nodes will be considered level 999 (something absurdly high).
+ * leaf nodes will be considered level 999 (something absurdly high).
  */
-var LEAF_LEVEL = 999;
-var PAGE_LEVEL = -1;
-var getDomNodeStructureLevel = function getStructureLevel(node) {
-  if (node.tagName === "h0" || node.tagName === "H0") {
+var leaf_level = 999;
+var page_level = -1;
+var getdomnodestructurelevel = function getstructurelevel(node) {
+  if (node.tagname === "h0" || node.tagname === "h0") {
     return 0;
   }
-  if (node.tagName === "h1" || node.tagName === "H1") {
+  if (node.tagname === "h1" || node.tagname === "h1") {
     return 1;
   }
-  if (node.tagName === "h2" || node.tagName === "H2") {
+  if (node.tagname === "h2" || node.tagname === "h2") {
     return 2;
   }
-  if (node.tagName === "h3" || node.tagName === "H3") {
+  if (node.tagname === "h3" || node.tagname === "h3") {
     return 3;
   }
-  if (node.tagName === "h4" || node.tagName === "H4") {
+  if (node.tagname === "h4" || node.tagname === "h4") {
     return 4;
   }
-  if (node.tagName === "h5" || node.tagName === "H5") {
+  if (node.tagname === "h5" || node.tagname === "h5") {
     return 5;
   }
-  if (node.tagName === "h6" || node.tagName === "H6") {
+  if (node.tagname === "h6" || node.tagname === "h6") {
     return 6;
   }
-  return LEAF_LEVEL;
+  return leaf_level;
 };
-var deepensContext = function (treeNode) {
-  return treeNode.level >= 0 && treeNode.level < 7;
+var deepenscontext = function (treenode) {
+  return treenode.level >= 0 && treenode.level < 7;
 };
 
 /**
- * Searches up in the context for the correct place for this level to be
+ * searches up in the context for the correct place for this level to be
  * inserted.
  */
-function recontext(context, nextTreeNode) {
-  // Root document level is level zero.
-  while (context.length > 1 && context[context.length - 1].level >= nextTreeNode.level) {
+function recontext(context, nexttreenode) {
+  // root document level is level zero.
+  while (context.length > 1 && context[context.length - 1].level >= nexttreenode.level) {
     context.pop();
   }
 }
 
-function lazyHierarchicalIndexForSearch(pageState) {
-  for (var pageKey in pageState) {
-    if (!pageState[pageKey].hierarchicalIndex) {
-      var containerNode = pageState[pageKey].contentContainerNode;
-      pageState[pageKey].hierarchicalIndex = hierarchicalIndexFromHierarchicalDoc(
-        pageState[pageKey].hierarchicalDoc
+function lazyhierarchicalindexforsearch(pagestate) {
+  for (var pagekey in pagestate) {
+    if (!pagestate[pagekey].hierarchicalindex) {
+      var containernode = pagestate[pagekey].contentcontainernode;
+      pagestate[pagekey].hierarchicalindex = hierarchicalindexfromhierarchicaldoc(
+        pagestate[pagekey].hierarchicaldoc
       );
     }
   }
 }
 
-function forEachHierarchyOne(f, context, treeNode) {
-  var newContext = updateContextFromTreeNode(context, treeNode);
-  f(treeNode, newContext);
-  forEachHierarchyImpl(f, newContext, treeNode.subtreeNodes);
+function foreachhierarchyone(f, context, treenode) {
+  var newcontext = updatecontextfromtreenode(context, treenode);
+  f(treenode, newcontext);
+  foreachhierarchyimpl(f, newcontext, treenode.subtreenodes);
 }
-function forEachHierarchyImpl(f, context, treeNodes) {
-  return treeNodes.forEach(forEachHierarchyOne.bind(null, f, context));
+function foreachhierarchyimpl(f, context, treenodes) {
+  return treenodes.foreach(foreachhierarchyone.bind(null, f, context));
 }
-function forEachHierarchy(f, treeNodes) {
-  var context = startContext;
-  return treeNodes.forEach(forEachHierarchyOne.bind(null, f, context));
+function foreachhierarchy(f, treenodes) {
+  var context = startcontext;
+  return treenodes.foreach(foreachhierarchyone.bind(null, f, context));
 }
 
-function mapHierarchyOne(f, context, treeNode) {
-  var newContext = updateContextFromTreeNode(context, treeNode);
+function maphierarchyone(f, context, treenode) {
+  var newcontext = updatecontextfromtreenode(context, treenode);
   return f(
     {
-      levelContent: treeNode.levelContent,
-      level: treeNode.level,
-      slug: treeNode.slug,
-      subtreeNodes: mapHierarchyImpl(f, newContext, treeNode.subtreeNodes),
+      levelcontent: treenode.levelcontent,
+      level: treenode.level,
+      slug: treenode.slug,
+      subtreenodes: maphierarchyimpl(f, newcontext, treenode.subtreenodes),
     },
-    newContext
+    newcontext
   );
 }
-function mapHierarchyImpl(f, context, treeNodes) {
-  return treeNodes.map(mapHierarchyOne.bind(null, f, context));
+function maphierarchyimpl(f, context, treenodes) {
+  return treenodes.map(maphierarchyone.bind(null, f, context));
 }
-function mapHierarchy(f, treeNodes) {
-  var context = startContext;
-  return treeNodes.map(mapHierarchyOne.bind(null, f, context));
+function maphierarchy(f, treenodes) {
+  var context = startcontext;
+  return treenodes.map(maphierarchyone.bind(null, f, context));
 }
 
 /**
- * Returns a hierarchy tree where level contents are the individual items that
- * may be searchable. The original structured hierarchy tree has the
- * levelContent of each subtreeNode being the root node of every element that
- * appears directly under that heading. The hierarchicalIndex expands a single
+ * returns a hierarchy tree where level contents are the individual items that
+ * may be searchable. the original structured hierarchy tree has the
+ * levelcontent of each subtreenode being the root node of every element that
+ * appears directly under that heading. the hierarchicalindex expands a single
  * tree node (such as one for a ul element) into several tree nodes (one for
- * each li in the ul for example). So it's a pretty simple mapping of the tree,
- * where each levelContent is expanded out into an array of content.  Retains
+ * each li in the ul for example). so it's a pretty simple mapping of the tree,
+ * where each levelcontent is expanded out into an array of content.  retains
  * the original context because when filtering the index at a later point, the
  * context would be in terms of filtered nodes, when you often also want the
  * original context as well.
  */
-function hierarchicalIndexFromHierarchicalDoc(treeNodes) {
-  function expandTreeNodeContentToSearchables(domNode, inclusiveContext) {
-    if (isNodeSearchHit(domNode)) {
-      // Filter out empty searchables.
-      if (domNode.textContent.trim() !== "") {
+function hierarchicalindexfromhierarchicaldoc(treenodes) {
+  function expandtreenodecontenttosearchables(domnode, inclusivecontext) {
+    if (isnodesearchhit(domnode)) {
+      // filter out empty searchables.
+      if (domnode.textcontent.trim() !== "") {
         return [
           {
-            indexable: domNode,
-            lazyCharacterCounts: null,
-            originalInclusiveContext: inclusiveContext,
+            indexable: domnode,
+            lazycharactercounts: null,
+            originalinclusivecontext: inclusivecontext,
           },
         ];
       } else {
@@ -1216,71 +1253,71 @@ function hierarchicalIndexFromHierarchicalDoc(treeNodes) {
       }
     } else {
       var more = [];
-      var childDomNode = domNode.firstChild;
-      while (childDomNode) {
-        more = more.concat(expandTreeNodeContentToSearchables(childDomNode, inclusiveContext));
-        childDomNode = childDomNode.nextSibling;
+      var childdomnode = domnode.firstchild;
+      while (childdomnode) {
+        more = more.concat(expandtreenodecontenttosearchables(childdomnode, inclusivecontext));
+        childdomnode = childdomnode.nextsibling;
       }
       return more;
     }
   }
-  function mapper(treeNode, inclusiveContext) {
-    if (treeNode.level !== LEAF_LEVEL) {
+  function mapper(treenode, inclusivecontext) {
+    if (treenode.level !== leaf_level) {
       return {
-        ...treeNode,
-        levelContent: [
+        ...treenode,
+        levelcontent: [
           {
-            indexable: treeNode.levelContent,
-            lazyCharacterCounts: null,
-            originalInclusiveContext: inclusiveContext,
+            indexable: treenode.levelcontent,
+            lazycharactercounts: null,
+            originalinclusivecontext: inclusivecontext,
           },
         ],
       };
     } else {
-      var domNode = treeNode.levelContent;
+      var domnode = treenode.levelcontent;
       return {
-        ...treeNode,
-        levelContent: expandTreeNodeContentToSearchables(domNode, inclusiveContext),
+        ...treenode,
+        levelcontent: expandtreenodecontenttosearchables(domnode, inclusivecontext),
       };
     }
   }
-  return mapHierarchy(mapper, treeNodes);
+  return maphierarchy(mapper, treenodes);
 }
 
 /**
- * Forms a hierarchy of content from structure forming nodes (such as headers)
+ * forms a hierarchy of content from structure forming nodes (such as headers)
  * from what would otherwise be a flat document.
- * The subtreeNodes are not dom Subtree nodes but the hierarchy subtree (level
+ * the subtreenodes are not dom subtree nodes but the hierarchy subtree (level
  * heading content etc).
  *
- * The subtreeNodes are either the list of Dom nodes immediately under that
- * level, else another "tree" node. (Type check it at runtime by looking for
- * .tagName property).
+ * the subtreenodes are either the list of dom nodes immediately under that
+ * level, else another "tree" node. (type check it at runtime by looking for
+ * .tagname property).
  *
  *  page:
  *
- *  H1Text
+ *  h1text
  *  text
- *  H2Text
- *  textB
- *  textC
+ *  h2text
+ *  textb
+ *  textc
  *
- *  Would be of the shape:
+ *  would be of the shape:
  *  {
  *    level: 0,                                                                // page
- *    levelContent: null,
- *    subtreeNodes: [
+ *    levelcontent: null,
+ *    subtreenodes: [
  *      {
  *        level: 1,
- *        levelContent: <h1>H1Text</h1>,                                       // h1 dom node
- *        subtreeNodes: [
- *          {level: LEAF_LEVEL, levelContent: <p>text</p>},                    // p DOM node
+ *        levelcontent: <h1>h1text</h1>,                                       // h1 dom node
+ *        subtreenodes: [
+ *          {level: leaf_level, levelcontent: <p>text</p>},                    // p dom node
  *          {
  *            level: 2,
- *            levelContent: <h2>H2Text</h2>,
- *            subtreeNodes: [
- *              {level: LEAF_LEVEL, levelContent: <p>textB</p>},
- *              {level: LEAF_LEVEL, levelContent: <p>textC</p>}
+ *            levelcontent: <h2>h2text</h2>,
+ *            subtreenodes: [
+ *              {level: leaf_level, levelcontent: <p>textb</p>},
+ *              {level: leaf_level, levelcontent: <p>textc</p>}
  *            ]
  *          }
  *        ]
@@ -1290,183 +1327,183 @@ function hierarchicalIndexFromHierarchicalDoc(treeNodes) {
  *    ]
  *  }
  */
-function hierarchize(containerNode) {
-  // Mutable reference.
-  var dummyNode = {
-    // Such as the h2 node that forms the new level etc.
-    levelContent: null,
-    level: PAGE_LEVEL,
-    subtreeNodes: [],
-    // Lazily or deferred
+function hierarchize(containernode) {
+  // mutable reference.
+  var dummynode = {
+    // such as the h2 node that forms the new level etc.
+    levelcontent: null,
+    level: page_level,
+    subtreenodes: [],
+    // lazily or deferred
     slug: null,
   };
-  var context = [dummyNode];
-  function hierarchicalIndexChildrenImpl(domNode) {
-    var childDomNode = domNode.firstChild;
-    while (childDomNode) {
-      hierarchicalIndexImpl(childDomNode);
-      childDomNode = childDomNode.nextSibling;
+  var context = [dummynode];
+  function hierarchicalindexchildrenimpl(domnode) {
+    var childdomnode = domnode.firstchild;
+    while (childdomnode) {
+      hierarchicalindeximpl(childdomnode);
+      childdomnode = childdomnode.nextsibling;
     }
   }
-  function hierarchicalIndexImpl(domNode) {
-    var domNodeLevel = getDomNodeStructureLevel(domNode);
-    var treeNode = {
-      levelContent: domNode,
-      level: domNodeLevel,
-      subtreeNodes: [],
-      // Lazily or deferred
+  function hierarchicalindeximpl(domnode) {
+    var domnodelevel = getdomnodestructurelevel(domnode);
+    var treenode = {
+      levelcontent: domnode,
+      level: domnodelevel,
+      subtreenodes: [],
+      // lazily or deferred
       slug: null,
     };
-    recontext(context, treeNode);
-    context[context.length - 1].subtreeNodes.push(treeNode);
-    if (deepensContext(treeNode)) {
-      context.push(treeNode);
+    recontext(context, treenode);
+    context[context.length - 1].subtreenodes.push(treenode);
+    if (deepenscontext(treenode)) {
+      context.push(treenode);
     }
   }
-  hierarchicalIndexChildrenImpl(containerNode);
-  return dummyNode.subtreeNodes;
+  hierarchicalindexchildrenimpl(containernode);
+  return dummynode.subtreenodes;
 }
 
 /**
- * Renders text filtered hierarchical index. The caps on rendered list size
+ * renders text filtered hierarchical index. the caps on rendered list size
  * happens at the renddering stage so that you can refer to "the n'th item" in
  * a permalink even if you change the configuration for capping the rendered
  * list size (for perf).
  */
-var hierarchicalRenderFilteredSearchables = function (
+var hierarchicalrenderfilteredsearchables = function (
   query,
-  filteredHierarchicalIndexByPage,
-  renderTopRow
+  filteredhierarchicalindexbypage,
+  rendertoprow
 ) {
   var txt = query.trim();
-  var searchRegex = regexesFor(query);
-  new RegExp("(" + escapeRegExpSplitString(txt) + ")", "gi");
-  // On the first keystroke, it will return far too many results, almost all of
-  // them useless since it matches anything with that character. In that case, limit to
-  // 20 results. Then on the next keystroke allow more.
-  var maxResultsLen = txt.length < 3 ? 15 :
+  var searchregex = regexesfor(query);
+  new regexp("(" + escaperegexpsplitstring(txt) + ")", "gi");
+  // on the first keystroke, it will return far too many results, almost all of
+  // them useless since it matches anything with that character. in that case, limit to
+  // 20 results. then on the next keystroke allow more.
+  var maxresultslen = txt.length < 3 ? 15 :
     txt.length === 3 ? 20 : 999;
-  return mapKeys(filteredHierarchicalIndexByPage, (filteredHierarchicalIndex, pageKey) => {
+  return mapkeys(filteredhierarchicalindexbypage, (filteredhierarchicalindex, pagekey) => {
     var results = [];
-    forEachHierarchy(function (treeNode, inclusiveContext) {
-      var filteredSearchables = treeNode.levelContent;
-      for (var i = 0; filteredSearchables !== null && i < filteredSearchables.length; i++) {
-        if (results.length < maxResultsLen) {
-          var searchable = filteredSearchables[i];
+    foreachhierarchy(function (treenode, inclusivecontext) {
+      var filteredsearchables = treenode.levelcontent;
+      for (var i = 0; filteredsearchables !== null && i < filteredsearchables.length; i++) {
+        if (results.length < maxresultslen) {
+          var searchable = filteredsearchables[i];
           results.push({
             searchable: searchable,
-            highlightedInnerText: trustedTraverseAndHighlight(
-              searchRegex,
+            highlightedinnertext: trustedtraverseandhighlight(
+              searchregex,
               txt,
               searchable.indexable
             ),
-            topRowMarkup: renderTopRow(
-              treeNode.level,
-              searchable.originalInclusiveContext,
+            toprowmarkup: rendertoprow(
+              treenode.level,
+              searchable.originalinclusivecontext,
               searchable.indexable
             ),
           });
         }
       }
-    }, filteredHierarchicalIndex);
+    }, filteredhierarchicalindex);
     return results;
   });
 };
 
 /**
- * We need to use textContent to return the content of nodes that are not
+ * we need to use textcontent to return the content of nodes that are not
  * visible/hidden (also avoiding reflows)
- * From Mozilla docs:
- * https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent#differences_from_innertext
- * Don't get confused by the differences between Node.textContent and
- * HTMLElement.innerText. Although the names seem similar, there are important
+ * from mozilla docs:
+ * https://developer.mozilla.org/en-us/docs/web/api/node/textcontent#differences_from_innertext
+ * don't get confused by the differences between node.textcontent and
+ * htmlelement.innertext. although the names seem similar, there are important
  * differences:
- *  - textContent gets the content of all elements, including <script> and
- *  <style> elements. In contrast, innerText only shows “human-readable”
+ *  - textcontent gets the content of all elements, including <script> and
+ *  <style> elements. in contrast, innertext only shows “human-readable”
  *  elements.
- *  - textContent returns every element in the node. In contrast, innerText is
+ *  - textcontent returns every element in the node. in contrast, innertext is
  *  aware of styling and won’t return the text of “hidden” elements.
- *  - Moreover, since innerText takes CSS styles into account, reading the
- *  value of innerText triggers a reflow to ensure up-to-date computed styles.
- *  (Reflows can be computationally expensive, and thus should be avoided when
+ *  - moreover, since innertext takes css styles into account, reading the
+ *  value of innertext triggers a reflow to ensure up-to-date computed styles.
+ *  (reflows can be computationally expensive, and thus should be avoided when
  *  possible.)
- *  - Unlike textContent, altering innerText in Internet Explorer (version 11
+ *  - unlike textcontent, altering innertext in internet explorer (version 11
  *  and below) removes child nodes from the element and permanently destroys
- *  all descendant text nodes. It is impossible to insert the nodes again into
+ *  all descendant text nodes. it is impossible to insert the nodes again into
  *  any other element or into the same element after doing so.
  *  https://stackoverflow.com/a/35213639
  */
-var getDomThingInnerText = function (domThing) {
-  return domThing.nodeType === Node.TEXT_NODE ? domThing.textContent : domThing.textContent;
+var getdomthinginnertext = function (domthing) {
+  return domthing.nodetype === node.text_node ? domthing.textcontent : domthing.textcontent;
 };
 
-var filterHierarchicalSearchables = function (query, pageState) {
+var filterhierarchicalsearchables = function (query, pagestate) {
   var txt = query.trim();
-  var searchRegex = regexesFor(txt);
-  new RegExp("(" + escapeRegExpSplitString(txt) + ")", "gi");
-  // On the first keystroke, it will return far too many results, almost all of
-  // them useless since it matches anything with that character. In that case, limit to
-  // 20 results. Then on the next keystroke allow more.
-  var maxResultsLen = txt.length === 1 ? 20 : 999;
-  return mapKeys(pageState, (pageData, pageKey) => {
-    return mapHierarchy(function (treeNode, inclusiveContext) {
-      // TODO: this is unfortunate. We should be able to *also* filter the
+  var searchregex = regexesfor(txt);
+  new regexp("(" + escaperegexpsplitstring(txt) + ")", "gi");
+  // on the first keystroke, it will return far too many results, almost all of
+  // them useless since it matches anything with that character. in that case, limit to
+  // 20 results. then on the next keystroke allow more.
+  var maxresultslen = txt.length === 1 ? 20 : 999;
+  return mapkeys(pagestate, (pagedata, pagekey) => {
+    return maphierarchy(function (treenode, inclusivecontext) {
+      // todo: this is unfortunate. we should be able to *also* filter the
       // header content, while preserving the original context so we can use
       // the original unfiltered context to render top row, but also determine
       // which headers themselves match the filtering so they can be rendered
       // as individual results themselves.
-      // if(treeNode.level !== LEAF_LEVEL) {
-      //   return treeNode;
+      // if(treenode.level !== leaf_level) {
+      //   return treenode;
       // }
-      var levelContent = treeNode.levelContent;
-      var searchables = levelContent;
-      var smartCaseWordBoundaryResults = [];
-      var smartCaseAnywhereNotWordBoundaryResults = [];
-      var caseInsensitiveWordBoundaryResults = [];
-      var caseInsensitiveAnywhereNotWordBoundaryResults = [];
-      searchables.forEach(function (searchable) {
+      var levelcontent = treenode.levelcontent;
+      var searchables = levelcontent;
+      var smartcasewordboundaryresults = [];
+      var smartcaseanywherenotwordboundaryresults = [];
+      var caseinsensitivewordboundaryresults = [];
+      var caseinsensitiveanywherenotwordboundaryresults = [];
+      searchables.foreach(function (searchable) {
         var indexable = searchable.indexable;
-        var nodeText = getDomThingInnerText(indexable);
-        var test = findBestMatch(nodeText, searchRegex);
-        var resultsToPush =
+        var nodetext = getdomthinginnertext(indexable);
+        var test = findbestmatch(nodetext, searchregex);
+        var resultstopush =
           test === -1
             ? null
-            : test & (SMARTCASE | WORDBOUNDARY)
-            ? smartCaseWordBoundaryResults
-            : test & SMARTCASE
-            ? smartCaseAnywhereNotWordBoundaryResults
-            : test & WORDBOUNDARY
-            ? caseInsensitiveAnywhereNotWordBoundaryResults
-            : caseInsensitiveAnywhereNotWordBoundaryResults;
-        if (resultsToPush !== null) {
-          resultsToPush.push(searchable);
+            : test & (smartcase | wordboundary)
+            ? smartcasewordboundaryresults
+            : test & smartcase
+            ? smartcaseanywherenotwordboundaryresults
+            : test & wordboundary
+            ? caseinsensitiveanywherenotwordboundaryresults
+            : caseinsensitiveanywherenotwordboundaryresults;
+        if (resultstopush !== null) {
+          resultstopush.push(searchable);
         }
       });
 
-      var noResults =
-        !smartCaseWordBoundaryResults.length &&
-        !smartCaseAnywhereNotWordBoundaryResults.length &&
-        !caseInsensitiveWordBoundaryResults.length &&
-        !caseInsensitiveAnywhereNotWordBoundaryResults.length;
+      var noresults =
+        !smartcasewordboundaryresults.length &&
+        !smartcaseanywherenotwordboundaryresults.length &&
+        !caseinsensitivewordboundaryresults.length &&
+        !caseinsensitiveanywherenotwordboundaryresults.length;
 
       return {
-        ...treeNode,
-        levelContent: noResults
+        ...treenode,
+        levelcontent: noresults
           ? []
-          : smartCaseWordBoundaryResults
-              .concat(smartCaseAnywhereNotWordBoundaryResults)
-              .concat(smartCaseAnywhereNotWordBoundaryResults)
-              .concat(caseInsensitiveWordBoundaryResults)
-              .concat(caseInsensitiveAnywhereNotWordBoundaryResults),
+          : smartcasewordboundaryresults
+              .concat(smartcaseanywherenotwordboundaryresults)
+              .concat(smartcaseanywherenotwordboundaryresults)
+              .concat(caseinsensitivewordboundaryresults)
+              .concat(caseinsensitiveanywherenotwordboundaryresults),
       };
-    }, pageData.hierarchicalIndex);
+    }, pagedata.hierarchicalindex);
   });
 };
 
 /**
- * For a context, finds the deepest header, and uses that slug if it exists.
+ * for a context, finds the deepest header, and uses that slug if it exists.
  */
-var bestSlugForContext = function (context) {
+var bestslugforcontext = function (context) {
   if (context.h6 && context.h6.slug) {
     return context.h6.slug;
   } else if (context.h5 && context.h5.slug) {
@@ -1484,48 +1521,48 @@ var bestSlugForContext = function (context) {
   }
 };
 
-var SMARTCASE = 0b10;
-var WORDBOUNDARY = 0b01;
+var smartcase = 0b10;
+var wordboundary = 0b01;
 
-var regexesFor = function (str) {
-  var hasUpper = str.toLowerCase() !== str;
+var regexesfor = function (str) {
+  var hasupper = str.tolowercase() !== str;
   return {
-    // TODO: Add checks that remove symbols like hyphen, dot, parens
-    smartCase: {
-      // Priority 1
-      wordBoundary: !hasUpper
+    // todo: add checks that remove symbols like hyphen, dot, parens
+    smartcase: {
+      // priority 1
+      wordboundary: !hasupper
         ? null
-        : new RegExp("\\b(" + escapeRegExpSplitString(str) + ")", "g" + (hasUpper ? "" : "i")),
-      // Priority 2
-      anywhere: !hasUpper
+        : new regexp("\\b(" + escaperegexpsplitstring(str) + ")", "g" + (hasupper ? "" : "i")),
+      // priority 2
+      anywhere: !hasupper
         ? null
-        : new RegExp("(" + escapeRegExpSplitString(str) + ")", "g" + (hasUpper ? "" : "i")),
+        : new regexp("(" + escaperegexpsplitstring(str) + ")", "g" + (hasupper ? "" : "i")),
     },
-    caseInsensitive: {
-      // Priority 3
-      wordBoundary: new RegExp("\\b(" + escapeRegExpSplitString(str) + ")", "gi"),
-      // Priority 4
-      anywhere: new RegExp("(" + escapeRegExpSplitString(str) + ")", "gi"),
+    caseinsensitive: {
+      // priority 3
+      wordboundary: new regexp("\\b(" + escaperegexpsplitstring(str) + ")", "gi"),
+      // priority 4
+      anywhere: new regexp("(" + escaperegexpsplitstring(str) + ")", "gi"),
     },
   };
 };
 
-var findBestMatch = function (stringToTest, regexes) {
-  if (regexes.smartCase.wordBoundary && regexes.smartCase.wordBoundary.test(stringToTest)) {
-    return SMARTCASE | WORDBOUNDARY;
-  } else if (regexes.smartCase.anywhere && regexes.smartCase.anywhere.test(stringToTest)) {
-    return SMARTCASE;
-  } else if (regexes.caseInsensitive.wordBoundary.test(stringToTest)) {
-    return WORDBOUNDARY;
-  } else if (regexes.caseInsensitive.anywhere.test(stringToTest)) {
+var findbestmatch = function (stringtotest, regexes) {
+  if (regexes.smartcase.wordboundary && regexes.smartcase.wordboundary.test(stringtotest)) {
+    return smartcase | wordboundary;
+  } else if (regexes.smartcase.anywhere && regexes.smartcase.anywhere.test(stringtotest)) {
+    return smartcase;
+  } else if (regexes.caseinsensitive.wordboundary.test(stringtotest)) {
+    return wordboundary;
+  } else if (regexes.caseinsensitive.anywhere.test(stringtotest)) {
     return 0;
   } else {
     return -1;
   }
 };
 
-/* Matches found in the header itself will be considered in that context */
-var startContext = {
+/* matches found in the header itself will be considered in that context */
+var startcontext = {
   h0: null,
   h1: null,
   h2: null,
@@ -1536,79 +1573,79 @@ var startContext = {
 };
 
 /**
- * If the encoding has an underscore anywhere it means the numbers were
- * doubled. If it has no underscore, the numbers might have been doubled - but
+ * if the encoding has an underscore anywhere it means the numbers were
+ * doubled. if it has no underscore, the numbers might have been doubled - but
  * there might just not have been any odd number of character counts.
  */
-var computeCharacterCounts = function (s) {
-  var sNoWhite = s.replace(/\s/g, "");
-  var baseRangeStart = "a".charCodeAt(0); // 97, a
-  var baseRangeEnd = "z".charCodeAt(0); // 122, z
-  // Squash all other characters into two slots.
-  var baseRangeLowerThanStart = baseRangeEnd + 1;
-  var baseRangeHigherThanEnd = baseRangeEnd + 2;
+var computecharactercounts = function (s) {
+  var snowhite = s.replace(/\s/g, "");
+  var baserangestart = "a".charcodeat(0); // 97, a
+  var baserangeend = "z".charcodeat(0); // 122, z
+  // squash all other characters into two slots.
+  var baserangelowerthanstart = baserangeend + 1;
+  var baserangehigherthanend = baserangeend + 2;
   var counts = [];
-  for (var j = baseRangeStart; j <= baseRangeHigherThanEnd; j++) {
-    counts[j - baseRangeStart] = 0;
+  for (var j = baserangestart; j <= baserangehigherthanend; j++) {
+    counts[j - baserangestart] = 0;
   }
-  var lower = sNoWhite.toLowerCase();
+  var lower = snowhite.tolowercase();
   for (var i = 0; i < lower.length; i++) {
-    var charCode = lower.charCodeAt(i);
-    var effectiveCharCode;
-    if (charCode < baseRangeStart) {
-      effectiveCharCode = baseRangeEnd + 1;
-    } else if (charCode > baseRangeEnd) {
-      effectiveCharCode = baseRangeEnd + 2;
+    var charcode = lower.charcodeat(i);
+    var effectivecharcode;
+    if (charcode < baserangestart) {
+      effectivecharcode = baserangeend + 1;
+    } else if (charcode > baserangeend) {
+      effectivecharcode = baserangeend + 2;
     } else {
-      effectiveCharCode = charCode;
+      effectivecharcode = charcode;
     }
-    counts[effectiveCharCode - baseRangeStart] = counts[effectiveCharCode - baseRangeStart] + 1;
+    counts[effectivecharcode - baserangestart] = counts[effectivecharcode - baserangestart] + 1;
   }
   return counts;
 };
 
-function computeCharacterCountDistance(a, b) {
+function computecharactercountdistance(a, b) {
   var dist = 0;
   for (var i = 0; i < a.length; i++) {
-    dist += Math.abs(a[i] - b[i]);
+    dist += math.abs(a[i] - b[i]);
   }
   return dist;
 }
 
 /**
- * Weighted character counts mapped to numeric representation in the range of
- * of a-ZA-Z0-9$_ (64 points).
+ * weighted character counts mapped to numeric representation in the range of
+ * of a-za-z0-9$_ (64 points).
  */
-var ENCODED_HASH_BASE = 64;
-var numberToEncodedLarge = function (n) {
-  var remainder = n % ENCODED_HASH_BASE;
-  var flooredDivision = Math.floor(n / ENCODED_HASH_BASE);
+var encoded_hash_base = 64;
+var numbertoencodedlarge = function (n) {
+  var remainder = n % encoded_hash_base;
+  var flooreddivision = math.floor(n / encoded_hash_base);
   return (
-    (flooredDivision >= ENCODED_HASH_BASE
-      ? numberToEncodedLarge(flooredDivision)
-      : numberToEncodedImpl(flooredDivision)) + numberToEncodedImpl(remainder)
+    (flooreddivision >= encoded_hash_base
+      ? numbertoencodedlarge(flooreddivision)
+      : numbertoencodedimpl(flooreddivision)) + numbertoencodedimpl(remainder)
   );
 };
-var numberToEncodedImpl = function (n) {
-  return n >= ENCODED_HASH_BASE
-    ? numberToEncodedLarge(n)
+var numbertoencodedimpl = function (n) {
+  return n >= encoded_hash_base
+    ? numbertoencodedlarge(n)
     : n < 10
-    ? String.fromCharCode(48 /*"0"*/ + n)
+    ? string.fromcharcode(48 /*"0"*/ + n)
     : n < 36
-    ? String.fromCharCode(97 /*a*/ + n - 10)
+    ? string.fromcharcode(97 /*a*/ + n - 10)
     : n < 62
-    ? String.fromCharCode(65 /*A*/ + n - 36)
+    ? string.fromcharcode(65 /*a*/ + n - 36)
     : n === 62
     ? "$"
     : "_";
 };
 /**
- * Special encoding of a number in url friendly base64 where the numer of
+ * special encoding of a number in url friendly base64 where the numer of
  * leading dashes tell you how many following characters to interpret.
- * One leading dash means two, two leading dashes means three and so on.
+ * one leading dash means two, two leading dashes means three and so on.
  */
-var numberToEncoded = function (n) {
-  var encoded = numberToEncodedImpl(n);
+var numbertoencoded = function (n) {
+  var encoded = numbertoencodedimpl(n);
   var len = encoded.length;
   var prefix = "";
   for (var i = 1; i < len; i++) {
@@ -1618,188 +1655,188 @@ var numberToEncoded = function (n) {
 };
 
 /**
- * We can change the hash encoding by changing the name of the query param from
+ * we can change the hash encoding by changing the name of the query param from
  * txt= to something like s=
  */
 /**
- * Encodes character counts into the range
+ * encodes character counts into the range
  */
-var characterCountsToEncoded = function (arr) {
+var charactercountstoencoded = function (arr) {
   var str = "";
   return arr
     .map(function (itm) {
-      return numberToEncoded(itm);
+      return numbertoencoded(itm);
     })
     .join("");
 };
 
-var encodedCountToNumber = function (s) {
+var encodedcounttonumber = function (s) {
   var base = 1;
   var sum = 0;
   for (var i = s.length - 1; i >= 0; i--) {
-    var digitCharCode = s[i].charCodeAt(0);
-    var digitEquivalent =
-      digitCharCode >= 48 && digitCharCode < 58
-        ? digitCharCode - 48
-        : digitCharCode >= 97 && digitCharCode < 97 + 26
-        ? 10 + digitCharCode - 97
-        : digitCharCode >= 65 && digitCharCode < 65 + 26
-        ? 10 + 26 + digitCharCode - 65
+    var digitcharcode = s[i].charcodeat(0);
+    var digitequivalent =
+      digitcharcode >= 48 && digitcharcode < 58
+        ? digitcharcode - 48
+        : digitcharcode >= 97 && digitcharcode < 97 + 26
+        ? 10 + digitcharcode - 97
+        : digitcharcode >= 65 && digitcharcode < 65 + 26
+        ? 10 + 26 + digitcharcode - 65
         : s === "$"
         ? 62
         : 63;
-    sum += digitEquivalent * base;
-    base = base * ENCODED_HASH_BASE;
+    sum += digitequivalent * base;
+    base = base * encoded_hash_base;
   }
   return sum;
 };
 
-var encodedToCharacterCountsImpl = function (s, numCharsToParse) {
+var encodedtocharactercountsimpl = function (s, numcharstoparse) {
   if (s.length === 0) {
     return [];
   } else if (s[0] === "-") {
-    return encodedToCharacterCountsImpl(s.substr(1), numCharsToParse + 1);
+    return encodedtocharactercountsimpl(s.substr(1), numcharstoparse + 1);
   } else {
-    return [encodedCountToNumber(s.substr(0, numCharsToParse))].concat(
-      encodedToCharacterCountsImpl(s.substr(numCharsToParse), 1)
+    return [encodedcounttonumber(s.substr(0, numcharstoparse))].concat(
+      encodedtocharactercountsimpl(s.substr(numcharstoparse), 1)
     );
   }
 };
-var encodedToCharacterCounts = function (s) {
-  return encodedToCharacterCountsImpl(s, 1);
+var encodedtocharactercounts = function (s) {
+  return encodedtocharactercountsimpl(s, 1);
 };
-var encodedToNumbers = function (s) {
-  var encoded = numberToEncoded(s);
+var encodedtonumbers = function (s) {
+  var encoded = numbertoencoded(s);
 };
 
-var testEncodingOfString = function (s) {
-  var characterCounts = computeCharacterCounts(s);
-  var encodedString = characterCountsToEncoded(characterCounts);
-  var reCharacterCounts = encodedToCharacterCounts(encodedString);
+var testencodingofstring = function (s) {
+  var charactercounts = computecharactercounts(s);
+  var encodedstring = charactercountstoencoded(charactercounts);
+  var recharactercounts = encodedtocharactercounts(encodedstring);
 
-  if (JSON.stringify(reCharacterCounts) !== JSON.stringify(characterCounts)) {
+  if (json.stringify(recharactercounts) !== json.stringify(charactercounts)) {
     console.error(
-      "Re Encoded not same as encoded \n" +
-        JSON.stringify(reCharacterCounts) +
+      "re encoded not same as encoded \n" +
+        json.stringify(recharactercounts) +
         " \n" +
-        JSON.stringify(characterCounts)
+        json.stringify(charactercounts)
     );
   } else {
     console.log(
-      "Re Encoded " +
-        encodedString +
-        " IS same when reencoding \n" +
-        JSON.stringify(reCharacterCounts)
+      "re encoded " +
+        encodedstring +
+        " is same when reencoding \n" +
+        json.stringify(recharactercounts)
     );
   }
 };
 
-// testEncodingOfString("testing testing another thing testing");
-// testEncodingOfString("aaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaazzzzzzaaaaaaaaaaaaaaaatesting testing another thing testing");
+// testencodingofstring("testing testing another thing testing");
+// testencodingofstring("aaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaazzzzzzaaaaaaaaaaaaaaaatesting testing another thing testing");
 
 /**
- * Problem:
- * You don't want 1.23 to become 123 because then 12.3 becomes 123 as well, and
+ * problem:
+ * you don't want 1.23 to become 123 because then 12.3 becomes 123 as well, and
  * therefore the slug will have a "deduping" 2 appended resulting in nonsense
  * version numbers in header text such as 1232.
- * This doesn't solve that but we can easily replace dots with spaces then
- * slugify. However, this will break github markdown slugs so the solution is
+ * this doesn't solve that but we can easily replace dots with spaces then
+ * slugify. however, this will break github markdown slugs so the solution is
  * to support alternative slugs in links in the markdown
- * [here](./DOC.html#github-lame-slug?bookmark-better-slug=awesome-slug).
+ * [here](./doc.html#github-lame-slug?bookmark-better-slug=awesome-slug).
  */
-var contextToSlug = function (context, slugContributions) {
+var contexttoslug = function (context, slugcontributions) {
   var slug = "";
-  // h0 shouldn't contribute to the slug. The page URL (or embedded single page
-  // #pageKey) accomplishes that.
-  // if(context.h0 && slugContributions.h0) {
-  //   slug +=  Flatdoc.slugify(context.h0.levelContent.textContent);
+  // h0 shouldn't contribute to the slug. the page url (or embedded single page
+  // #pagekey) accomplishes that.
+  // if(context.h0 && slugcontributions.h0) {
+  //   slug +=  flatdoc.slugify(context.h0.levelcontent.textcontent);
   // }
-  if (context.h1 && slugContributions.h1) {
-    slug += " " + Flatdoc.slugify(context.h1.levelContent.textContent);
+  if (context.h1 && slugcontributions.h1) {
+    slug += " " + flatdoc.slugify(context.h1.levelcontent.textcontent);
   }
-  if (context.h2 && slugContributions.h2) {
-    slug += " " + Flatdoc.slugify(context.h2.levelContent.textContent);
+  if (context.h2 && slugcontributions.h2) {
+    slug += " " + flatdoc.slugify(context.h2.levelcontent.textcontent);
   }
-  if (context.h3 && slugContributions.h3) {
-    slug += " " + Flatdoc.slugify(context.h3.levelContent.textContent);
+  if (context.h3 && slugcontributions.h3) {
+    slug += " " + flatdoc.slugify(context.h3.levelcontent.textcontent);
   }
-  if (context.h4 && slugContributions.h4) {
-    slug += " " + Flatdoc.slugify(context.h4.levelContent.textContent);
+  if (context.h4 && slugcontributions.h4) {
+    slug += " " + flatdoc.slugify(context.h4.levelcontent.textcontent);
   }
-  if (context.h5 && slugContributions.h5) {
-    slug += " " + Flatdoc.slugify(context.h5.levelContent.textContent);
+  if (context.h5 && slugcontributions.h5) {
+    slug += " " + flatdoc.slugify(context.h5.levelcontent.textcontent);
   }
-  if (context.h6 && slugContributions.h6) {
-    slug += " " + Flatdoc.slugify(context.h6.levelContent.textContent);
+  if (context.h6 && slugcontributions.h6) {
+    slug += " " + flatdoc.slugify(context.h6.levelcontent.textcontent);
   }
-  return Flatdoc.slugify(slug.length > 0 ? slug.substring(1) : "");
+  return flatdoc.slugify(slug.length > 0 ? slug.substring(1) : "");
 };
 
 /**
- * H0s never partake in slugs.
+ * h0s never partake in slugs.
  */
-function annotateSlugsOnTreeNodes(hierarchicalDoc, slugContributions) {
-  var seenSlugs = {};
-  // Requesting side-nav requires linkifying
-  var headers = "h1 h2 h3 h4 h5 h6 H1 H2 H3 H4 H5 H6";
-  var appendSlug = function (treeNode, inclusiveContext) {
-    var levelContent = treeNode.levelContent;
-    var level = treeNode.level;
-    var subtreeNodes = treeNode.subtreeNodes;
-    if (headers.indexOf(levelContent.tagName) !== -1) {
-      var slugCandidate = contextToSlug(inclusiveContext, slugContributions);
-      var slug = seenSlugs[slugCandidate]
-        ? slugCandidate + "--" + (seenSlugs[slugCandidate] + 1)
-        : slugCandidate;
-      seenSlugs[slugCandidate] = seenSlugs[slugCandidate] ? seenSlugs[slugCandidate] + 1 : 1;
-      treeNode.slug = slug;
+function annotateslugsontreenodes(hierarchicaldoc, slugcontributions) {
+  var seenslugs = {};
+  // requesting side-nav requires linkifying
+  var headers = "h1 h2 h3 h4 h5 h6 h1 h2 h3 h4 h5 h6";
+  var appendslug = function (treenode, inclusivecontext) {
+    var levelcontent = treenode.levelcontent;
+    var level = treenode.level;
+    var subtreenodes = treenode.subtreenodes;
+    if (headers.indexof(levelcontent.tagname) !== -1) {
+      var slugcandidate = contexttoslug(inclusivecontext, slugcontributions);
+      var slug = seenslugs[slugcandidate]
+        ? slugcandidate + "--" + (seenslugs[slugcandidate] + 1)
+        : slugcandidate;
+      seenslugs[slugcandidate] = seenslugs[slugcandidate] ? seenslugs[slugcandidate] + 1 : 1;
+      treenode.slug = slug;
     }
   };
-  forEachHierarchy(appendSlug, hierarchicalDoc);
+  foreachhierarchy(appendslug, hierarchicaldoc);
 }
 
 /**
- * 1. Fixes links that pointed to /page.md or /page to point to page.html when
- * not in single docs mode.  This makes it easier to port files over to
- * Bookmark by just renaming them to .html and adding the script header.
- * However, you should fix up these links too so that your markdown rendered
+ * 1. fixes links that pointed to /page.md or /page to point to page.html when
+ * not in single docs mode.  this makes it easier to port files over to
+ * bookmark by just renaming them to .html and adding the script header.
+ * however, you should fix up these links too so that your markdown rendered
  * docs render correctly on github.
- * 2. Changes links from something/ to something.html.
- * TODO: Should probably not do any anchor link rewriting to links to
+ * 2. changes links from something/ to something.html.
+ * todo: should probably not do any anchor link rewriting to links to
  * documents. (if you have an image.png anchor link and a page key named
  * image).
  *
- * When rendering in development mode, we need to turn links like:
+ * when rendering in development mode, we need to turn links like:
  * foo.html into ./foo.html
  */
-function fixAllAnchorLinksUnderRoot(runner, rootNode) {
-  $(rootNode).find('a').each(function() {
-    var node = this;
-    fixupHrefOnAnchor(runner, node);
-  });
-}
+// function fixallanchorlinksunderroot(runner, rootnode) {
+//   $(rootnode).find('a').each(function() {
+//     var node = this;
+//     fixuphrefonanchor(runner, node);
+//   });
+// }
 
-var fixupHrefOnAnchor = function(runner, node) {
-  var hrefAsWritten = node.getAttribute('href');
-  var fullHref = node.href;
-  var linkInfo = getLink(runner.discoveredToBePrerenderedPageKey, runner.discoveredToBePrerenderedAtUrl, window.location, fullHref);
-  if (linkInfo.type !== 'external' && node.href) {
-    var pageKey = linkInfo.pageKey;
-    if(runner.pageState[pageKey]) {
-      var hash = linkInfo.hashContents;
-      var queryParams = linkInfo.queryParams;
-      var queryParamsString = queryParams ? dictToSearchParams(queryParams) : "";
-      var slugAndQueryParams = hash + queryParamsString;
-      var fullyResolvedNodeHrefBefore = node.href;
+// var fixuphrefonanchor = function(runner, node) {
+//   var hrefaswritten = node.getattribute('href');
+//   var fullhref = node.href;
+//   var linkinfo = getlink(runner.discoveredtobeprerenderedpagekey, runner.discoveredtobeprerenderedaturl, window.location, fullhref);
+//   if (linkinfo.type !== 'external' && node.href) {
+//     var pagekey = linkinfo.pagekey;
+//     if(runner.pagestate[pagekey]) {
+//       var hash = linkinfo.hashcontents;
+//       var queryparams = linkinfo.queryparams;
+//       var queryparamsstring = queryparams ? dictToSearchParams(queryParams) : "";
+//       var slugAndQueryParams = hash + queryParamsString;
+//       var fullyResolvedNodeHrefBefore = node.href;
       // TODO: Don't think I need to escape this if setting the attribute
       // and not injecting into html (double escaped).
-      node.href = runner.constructEscapedBaseUrlFromRoot(pageKey, slugAndQueryParams);
+//       node.href = runner.constructEscapedBaseUrlFromRoot(pageKey, slugAndQueryParams);
       // if(fullyResolvedNodeHrefBefore !== node.href) {
         // console.log("FIXED UP ANCHOR:", fullyResolvedNodeHrefBefore, node.href);
       // }
-    }
-  }
-};
+//     }
+//   }
+// };
 
 var substituteSiteTemplateContentsWithHeaderPropsOnFetch = function (
   siteTemplate,
